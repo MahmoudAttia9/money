@@ -18,13 +18,10 @@
         .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        /* Hide scrollbar for Chrome, Safari and Opera */
+        /* Hide scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        /* Hide scrollbar for IE, Edge and Firefox */
         .no-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
 
-        .glass-effect { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        
         @media print {
             aside, header button, .no-print, .bottom-nav { display: none !important; }
             body { background: white; }
@@ -33,14 +30,13 @@
 
         /* Mobile Adjustments */
         @media (max-width: 768px) {
-            .mobile-card-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-            .bottom-safe-area { padding-bottom: env(safe-area-inset-bottom); }
+            .mobile-pb { padding-bottom: 100px !important; } /* Extra padding for bottom nav */
         }
     </style>
 </head>
 <body class="text-slate-800 h-screen flex overflow-hidden bg-slate-50">
 
-    <!-- Desktop Sidebar (Hidden on Mobile) -->
+    <!-- Desktop Sidebar -->
     <aside class="w-64 bg-slate-900 text-white flex-col hidden md:flex shadow-xl z-20">
         <div class="p-6 border-b border-slate-700">
             <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
@@ -75,7 +71,7 @@
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-screen overflow-hidden relative w-full">
         
-        <!-- Mobile Top Bar (Logo & Profile) -->
+        <!-- Mobile Top Bar -->
         <div class="md:hidden bg-white px-4 py-3 flex justify-between items-center shadow-sm z-10 sticky top-0">
             <h1 class="font-bold text-lg flex items-center gap-2 text-slate-800">
                 <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-blue-200 shadow-lg">
@@ -91,7 +87,7 @@
         <!-- Filters & Quick Actions -->
         <header class="bg-white/80 backdrop-blur-md border-b border-gray-200 p-4 z-10">
             <div class="max-w-5xl mx-auto w-full flex flex-col gap-4">
-                <!-- Date Filters (Scrollable on Mobile) -->
+                <!-- Date Filters -->
                 <div class="flex overflow-x-auto no-scrollbar gap-2 pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
                     <button onclick="app.setPeriod('daily')" id="filter-daily" class="period-btn whitespace-nowrap px-4 py-1.5 text-sm font-medium rounded-full border border-transparent transition-all">Today</button>
                     <button onclick="app.setPeriod('weekly')" id="filter-weekly" class="period-btn whitespace-nowrap px-4 py-1.5 text-sm font-medium rounded-full border border-transparent transition-all">Week</button>
@@ -114,34 +110,34 @@
         </header>
 
         <!-- Scrollable Content Area -->
-        <div id="main-view" class="flex-1 overflow-y-auto overflow-x-hidden p-4 pb-24 md:pb-8 bg-slate-50">
+        <div id="main-view" class="flex-1 overflow-y-auto overflow-x-hidden p-4 pb-32 md:pb-8 bg-slate-50 mobile-pb">
             <!-- Content Injected via JS -->
         </div>
 
     </main>
 
     <!-- Mobile Bottom Navigation -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-2 pb-safe z-30 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] bottom-nav">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-2 pb-safe z-30 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] bottom-nav h-[70px]">
         <button onclick="app.navigate('dashboard')" id="mob-nav-dashboard" class="mob-nav-item flex flex-col items-center gap-1 p-2 text-blue-600 transition-colors">
             <i class="fa-solid fa-house text-xl"></i>
             <span class="text-[10px] font-medium">Home</span>
         </button>
-        <button onclick="app.navigate('transactions')" id="mob-nav-transactions" class="mob-nav-item flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-600 transition-colors">
-            <i class="fa-solid fa-list text-xl"></i>
-            <span class="text-[10px] font-medium">History</span>
+        <button onclick="app.navigate('analytics')" id="mob-nav-analytics" class="mob-nav-item flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-600 transition-colors">
+            <i class="fa-solid fa-chart-pie text-xl"></i>
+            <span class="text-[10px] font-medium">Analytics</span>
         </button>
         <div class="relative -top-6">
             <button onclick="modal.open('expense')" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-300 active:scale-90 transition-transform">
                 <i class="fa-solid fa-plus text-2xl"></i>
             </button>
         </div>
+        <button onclick="app.navigate('goals')" id="mob-nav-goals" class="mob-nav-item flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-600 transition-colors">
+            <i class="fa-solid fa-bullseye text-xl"></i>
+            <span class="text-[10px] font-medium">Goals</span>
+        </button>
         <button onclick="app.navigate('debts')" id="mob-nav-debts" class="mob-nav-item flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-600 transition-colors">
             <i class="fa-solid fa-credit-card text-xl"></i>
             <span class="text-[10px] font-medium">Debts</span>
-        </button>
-        <button onclick="app.navigate('settings')" id="mob-nav-settings" class="mob-nav-item flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-600 transition-colors">
-            <i class="fa-solid fa-gear text-xl"></i>
-            <span class="text-[10px] font-medium">Settings</span>
         </button>
     </nav>
 
@@ -152,7 +148,7 @@
                 <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2" id="modal-title">Add Item</h3>
                 <button onclick="modal.close()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors"><i class="fa-solid fa-times"></i></button>
             </div>
-            <div class="p-6 max-h-[80vh] overflow-y-auto">
+            <div class="p-6 max-h-[75vh] overflow-y-auto">
                 <form id="dynamic-form" class="space-y-5">
                     <!-- Form fields injected here -->
                 </form>
@@ -165,24 +161,26 @@
     </div>
 
 <script>
+// --- CHART.JS GLOBALS (To destroy instances correctly) ---
+let incomeChartInstance = null;
+let expenseChartInstance = null;
+let historyChartInstance = null;
+
 // --- CORE LOGIC (MoneyFlowEngine) ---
 const MoneyFlowEngine = {
     isDateInPeriod: (dateStr, period) => {
         const d = new Date(dateStr);
         const now = new Date();
-        // Reset times to avoid timezone issues for simple date comparison
         const dDate = new Date(d.toDateString());
         const nowDate = new Date(now.toDateString());
         
         switch(period) {
-            case 'daily':
-                return dDate.getTime() === nowDate.getTime();
+            case 'daily': return dDate.getTime() === nowDate.getTime();
             case 'weekly':
                 const firstDayOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
                 firstDayOfWeek.setHours(0,0,0,0);
                 return dDate >= firstDayOfWeek;
-            case 'monthly':
-                return d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear();
+            case 'monthly': return d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear();
             default: return true;
         }
     },
@@ -193,7 +191,6 @@ const MoneyFlowEngine = {
 
         const totalIncome = periodIncome.reduce((sum, t) => sum + parseFloat(t.amount), 0);
         const totalExpense = periodExpense.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        
         const netBalance = totalIncome - totalExpense;
 
         const sortedDebts = [...debts].sort((a, b) => {
@@ -212,6 +209,7 @@ const MoneyFlowEngine = {
                 debtAllocation.push({
                     id: debt.id,
                     title: debt.title,
+                    person: debt.person, // Include Person
                     allocated: allocatableCash > 0 ? paymentAmount : 0,
                     status: allocatableCash > 0 ? (paymentAmount >= debt.monthlyPayment ? 'Covered' : 'Partial') : 'Missed',
                     monthlyPayment: debt.monthlyPayment
@@ -255,7 +253,6 @@ const Store = {
         Store.set('transactions', data);
     },
     deleteTransaction: (id) => {
-        // Using loose equality (!=) to handle string/number ID mismatch
         const data = Store.get('transactions').filter(t => t.id != id);
         Store.set('transactions', data);
     },
@@ -271,7 +268,7 @@ const Store = {
             debts[idx].remainingAmount = Math.max(0, debts[idx].remainingAmount - amount);
             Store.set('debts', debts);
             Store.addTransaction({
-                title: `Debt Payment: ${debts[idx].title}`,
+                title: `Debt Pmt: ${debts[idx].title}`,
                 amount: amount,
                 type: 'expense',
                 category: 'Debt',
@@ -310,15 +307,14 @@ const app = {
     init: () => {
         if (!localStorage.getItem('transactions')) {
             Store.set('transactions', [
-                { id: 1, type: 'income', title: 'Freelance Project', amount: 1500, date: new Date().toISOString().split('T')[0], category: 'Work' },
-                { id: 2, type: 'expense', title: 'Supermarket', amount: 120, date: new Date().toISOString().split('T')[0], category: 'Food' }
+                { id: 1, type: 'income', title: 'Salary', amount: 5000, date: new Date().toISOString().split('T')[0], category: 'Salary' }
             ]);
         }
         if(!localStorage.getItem('debts')) {
-            Store.set('debts', [{ id: 1, title: 'Bank Loan', totalAmount: 5000, monthlyPayment: 300, remainingAmount: 4200, interestRate: 5, priority: 'High', dueDate: '2023-12-25' }]);
+            Store.set('debts', [{ id: 1, title: 'Car Loan', person: 'CIB Bank', totalAmount: 5000, monthlyPayment: 300, remainingAmount: 4200, interestRate: 5, priority: 'High', dueDate: '2023-12-25' }]);
         }
         if(!localStorage.getItem('goals')) {
-            Store.set('goals', [{ id: 1, title: 'New iPhone', targetAmount: 2000, savedAmount: 500, priority: 'Medium' }]);
+            Store.set('goals', [{ id: 1, title: 'Emergency Fund', targetAmount: 10000, savedAmount: 1000, priority: 'High' }]);
         }
 
         app.render();
@@ -327,7 +323,6 @@ const app = {
     navigate: (view) => {
         app.currentView = view;
         
-        // Desktop Nav Update
         document.querySelectorAll('.nav-item').forEach(el => {
             el.classList.remove('bg-blue-600', 'hover:bg-blue-700');
             el.classList.add('hover:bg-slate-800');
@@ -338,7 +333,6 @@ const app = {
             activeNav.classList.add('bg-blue-600', 'hover:bg-blue-700');
         }
 
-        // Mobile Nav Update
         document.querySelectorAll('.mob-nav-item').forEach(el => {
             el.classList.remove('text-blue-600');
             el.classList.add('text-slate-400');
@@ -373,7 +367,6 @@ const app = {
 
         if (app.currentView === 'dashboard') {
             main.innerHTML = views.dashboard(financials, transactions);
-            setTimeout(() => app.renderDashboardChart(transactions), 100);
         } else if (app.currentView === 'transactions') {
             main.innerHTML = views.transactions(transactions);
             document.getElementById('search-transactions').addEventListener('input', app.filterTransactions);
@@ -386,6 +379,7 @@ const app = {
             setTimeout(() => document.querySelectorAll('[data-progress]').forEach(el => el.style.width = el.dataset.progress + '%'), 50);
         } else if (app.currentView === 'analytics') {
             main.innerHTML = views.analytics(transactions, debts, goals);
+            // Render charts after HTML injection
             setTimeout(() => views.renderCharts(transactions), 100);
         } else if (app.currentView === 'settings') {
             main.innerHTML = views.settings();
@@ -402,16 +396,9 @@ const app = {
         });
     },
 
-    deleteTransaction: (id) => {
-        if(confirm('Delete transaction?')) { Store.deleteTransaction(id); app.render(); }
-    },
-    processDebtPayment: (id, amount) => {
-        if(confirm(`Pay EGP ${amount}?`)) { Store.payDebt(id, parseFloat(amount)); app.render(); }
-    },
-    fundGoal: (id) => {
-        const amount = prompt("Amount to save:");
-        if(amount && !isNaN(amount)) { Store.fundGoal(id, amount); app.render(); }
-    },
+    deleteTransaction: (id) => { if(confirm('Delete transaction?')) { Store.deleteTransaction(id); app.render(); } },
+    processDebtPayment: (id, amount) => { if(confirm(`Pay EGP ${amount}?`)) { Store.payDebt(id, parseFloat(amount)); app.render(); } },
+    fundGoal: (id) => { const amount = prompt("Amount to save:"); if(amount && !isNaN(amount)) { Store.fundGoal(id, amount); app.render(); } },
     deleteDebt: (id) => { if(confirm('Delete debt?')) { Store.deleteDebt(id); app.render(); } },
     deleteGoal: (id) => { if(confirm('Delete goal?')) { Store.deleteGoal(id); app.render(); } },
     
@@ -443,37 +430,7 @@ const app = {
         input.click();
     },
     clearAllData: () => { if(confirm('Delete EVERYTHING?')) localStorage.clear(), location.reload(); },
-    printReport: () => window.print(),
-    
-    renderDashboardChart: (transactions) => {
-        const expenseByCategory = {};
-        const period = app.currentPeriod;
-        transactions.forEach(t => {
-            if (t.type === 'expense' && MoneyFlowEngine.isDateInPeriod(t.date, period)) {
-                expenseByCategory[t.category] = (expenseByCategory[t.category] || 0) + parseFloat(t.amount);
-            }
-        });
-        const ctx = document.getElementById('dashboardChart');
-        if (ctx) {
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(expenseByCategory),
-                    datasets: [{
-                        data: Object.values(expenseByCategory),
-                        backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#06b6d4', '#ec4899'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } },
-                    cutout: '70%'
-                }
-            });
-        }
-    }
+    printReport: () => window.print()
 };
 
 // --- VIEWS ---
@@ -499,81 +456,59 @@ const views = {
                     </div>
                 </div>` : ''}
 
-                <!-- Summary Cards (Scrollable on Mobile) -->
+                <!-- Summary Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between h-32 relative overflow-hidden">
                         <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-50 rounded-full"></div>
-                        <div class="relative z-10 text-sm text-gray-500 font-medium">Total Income</div>
+                        <div class="relative z-10 text-sm text-gray-500 font-medium">Income</div>
                         <div class="relative z-10 text-2xl font-bold text-emerald-600">EGP ${data.totalIncome.toLocaleString()}</div>
-                        <div class="relative z-10 text-xs text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-down"></i> In</div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between h-32 relative overflow-hidden">
                         <div class="absolute -right-4 -top-4 w-20 h-20 bg-rose-50 rounded-full"></div>
-                        <div class="relative z-10 text-sm text-gray-500 font-medium">Total Expenses</div>
+                        <div class="relative z-10 text-sm text-gray-500 font-medium">Expenses</div>
                         <div class="relative z-10 text-2xl font-bold text-rose-600">EGP ${data.totalExpense.toLocaleString()}</div>
-                        <div class="relative z-10 text-xs text-rose-600 bg-rose-50 w-fit px-2 py-1 rounded-full flex items-center gap-1"><i class="fa-solid fa-arrow-up"></i> Out</div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between h-32 relative overflow-hidden">
                         <div class="absolute -right-4 -top-4 w-20 h-20 bg-blue-50 rounded-full"></div>
                         <div class="relative z-10 text-sm text-gray-500 font-medium">Net Balance</div>
                         <div class="relative z-10 text-2xl font-bold ${data.netBalance >= 0 ? 'text-blue-600' : 'text-red-500'}">EGP ${data.netBalance.toLocaleString()}</div>
-                        <div class="relative z-10 text-xs text-gray-400">Available</div>
                     </div>
                 </div>
+
+                <!-- Saving Plan Button -->
+                <button onclick="app.navigate('goals')" class="w-full bg-indigo-600 text-white p-4 rounded-xl shadow-lg shadow-indigo-200 flex items-center justify-between group active:scale-[0.99] transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center"><i class="fa-solid fa-piggy-bank text-xl"></i></div>
+                        <div class="text-left">
+                            <div class="font-bold text-lg">Saving Plan</div>
+                            <div class="text-indigo-200 text-xs">Manage your goals & savings</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column -->
                     <div class="space-y-6">
-                        <!-- Chart -->
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                            <h3 class="font-bold text-gray-800 mb-4 text-sm flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-500"></i> Expenses Breakdown</h3>
-                            <div class="h-48 relative w-full flex justify-center">
-                                <canvas id="dashboardChart"></canvas>
-                            </div>
-                        </div>
-                        
                         <!-- Allocation Engine -->
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h3 class="font-bold text-gray-800 mb-4 text-sm flex items-center gap-2"><i class="fa-solid fa-robot text-purple-500"></i> Smart AI Allocation</h3>
                             
                             <!-- Debts Section -->
                             <div class="mb-4">
-                                <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Debt Repayment Plan</div>
+                                <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Debt Repayment</div>
                                 ${data.debtAllocation.length === 0 ? '<div class="text-sm text-gray-400 bg-gray-50 p-3 rounded-xl text-center">No active debts.</div>' : 
                                     `<div class="space-y-2">
                                         ${data.debtAllocation.map(d => `
                                             <div class="flex justify-between items-center p-3 bg-slate-50 border border-slate-100 rounded-xl">
                                                 <div>
                                                     <div class="font-semibold text-sm text-gray-700">${d.title}</div>
-                                                    <div class="text-[10px] ${d.status === 'Covered' ? 'text-green-600' : 'text-amber-600'} flex items-center gap-1">
-                                                        <span class="w-1.5 h-1.5 rounded-full ${d.status === 'Covered' ? 'bg-green-500' : 'bg-amber-500'}"></span>
-                                                        ${d.status}
-                                                    </div>
+                                                    <div class="text-[10px] text-gray-500">To: ${d.person || 'Unknown'}</div>
                                                 </div>
                                                 <div class="flex flex-col items-end gap-1">
                                                     <span class="font-bold text-sm text-gray-800">EGP ${d.allocated}</span>
                                                     ${d.allocated > 0 ? `<button onclick="app.processDebtPayment(${d.id}, ${d.allocated})" class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md font-medium hover:bg-blue-200">Pay</button>` : ''}
                                                 </div>
-                                            </div>
-                                        `).join('')}
-                                    </div>`
-                                }
-                            </div>
-
-                            <!-- Goals Section -->
-                            <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Savings Plan</div>
-                                    <div class="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-md font-medium">Free: EGP ${data.remainingFreeCash}</div>
-                                </div>
-                                ${data.goalAllocation.length === 0 ? '<div class="text-sm text-gray-400 bg-gray-50 p-3 rounded-xl text-center">No cash for savings.</div>' : 
-                                    `<div class="space-y-2">
-                                        ${data.goalAllocation.map(g => `
-                                            <div class="flex justify-between items-center p-3 bg-emerald-50/50 border border-emerald-100 rounded-xl">
-                                                <div>
-                                                    <div class="font-semibold text-sm text-gray-700">${g.title}</div>
-                                                </div>
-                                                <div class="font-bold text-sm text-emerald-600">+${g.allocated}</div>
                                             </div>
                                         `).join('')}
                                     </div>`
@@ -667,27 +602,24 @@ const views = {
                     const progress = ((d.totalAmount - d.remainingAmount) / d.totalAmount) * 100;
                     return `
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 relative overflow-hidden">
-                        <div class="flex justify-between items-start mb-4">
+                        <div class="flex justify-between items-start mb-2">
                             <div>
                                 <h3 class="font-bold text-gray-800">${d.title}</h3>
-                                <p class="text-xs text-gray-500 mt-1">Due: ${d.dueDate}</p>
+                                <p class="text-xs text-gray-500 flex items-center gap-1"><i class="fa-solid fa-user"></i> ${d.person || 'Unknown'}</p>
                             </div>
                             <span class="text-[10px] font-bold px-2 py-1 rounded-md ${d.priority==='High'?'bg-red-50 text-red-600':'bg-blue-50 text-blue-600'}">${d.priority}</span>
                         </div>
                         
                         <div class="flex justify-between text-xs mb-1.5 text-gray-600">
-                            <span>Paid: EGP ${(d.totalAmount - d.remainingAmount).toLocaleString()}</span>
-                            <span>${Math.round(progress)}%</span>
+                            <span>Rem: EGP ${d.remainingAmount.toLocaleString()}</span>
+                            <span>${Math.round(progress)}% Paid</span>
                         </div>
                         <div class="w-full bg-gray-100 rounded-full h-2 mb-4">
                             <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" data-progress="${progress}" style="width: 0%"></div>
                         </div>
                         
                         <div class="flex items-center justify-between border-t border-gray-50 pt-3 mt-2">
-                             <div class="text-xs">
-                                <span class="block text-gray-400">Remaining</span>
-                                <span class="font-bold text-gray-800">EGP ${d.remainingAmount.toLocaleString()}</span>
-                             </div>
+                             <div class="text-xs text-gray-500">Due: ${d.dueDate}</div>
                              <div class="flex gap-2">
                                 <button onclick="app.deleteDebt(${d.id})" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100"><i class="fa-solid fa-trash text-xs"></i></button>
                                 <button onclick="app.processDebtPayment(${d.id}, ${d.monthlyPayment})" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700">Pay EGP ${d.monthlyPayment}</button>
@@ -705,7 +637,8 @@ const views = {
                 <h2 class="text-xl font-bold text-gray-800">Goals</h2>
                 <button onclick="modal.open('goal')" class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg shadow-blue-200 active:scale-90 transition-transform"><i class="fa-solid fa-plus text-sm"></i></button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Grid fix for mobile -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-12">
                 ${list.map(g => {
                     const progress = (g.savedAmount / g.targetAmount) * 100;
                     return `
@@ -741,9 +674,19 @@ const views = {
         </div>
     `,
 
-    analytics: (transactions, debts, goals) => `
+    analytics: (transactions) => `
         <div class="max-w-5xl mx-auto space-y-6">
             <h2 class="text-xl font-bold text-gray-800">Analytics</h2>
+            
+            <!-- Monthly Trends Chart (New) -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-700 mb-4 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-indigo-500"></i> Last 6 Months Trends
+                </h3>
+                <div class="h-64 relative w-full"><canvas id="historyChart"></canvas></div>
+            </div>
+
+            <!-- Category Breakdown -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                     <h3 class="font-bold text-gray-700 mb-4 text-sm text-center">Income Source</h3>
@@ -792,10 +735,96 @@ const views = {
                 </div>
             </div>
             <div class="p-4 bg-gray-50 text-center text-xs text-gray-400">
-                Version 3.0 Mobile • Built with ❤️
+                Version 3.1 Mobile • Built with ❤️
             </div>
         </div>
-    `
+    `,
+
+    // --- CHART RENDERING LOGIC ---
+    renderCharts: (transactions) => {
+        // Destroy old instances
+        if(incomeChartInstance) { incomeChartInstance.destroy(); incomeChartInstance = null; }
+        if(expenseChartInstance) { expenseChartInstance.destroy(); expenseChartInstance = null; }
+        if(historyChartInstance) { historyChartInstance.destroy(); historyChartInstance = null; }
+
+        // Data Prep for Category Charts
+        const incomeMap = {};
+        const expenseMap = {};
+        const period = app.currentPeriod; // Respect current filter for Pie charts
+
+        transactions.forEach(t => {
+            if(MoneyFlowEngine.isDateInPeriod(t.date, period)) {
+                const target = t.type === 'income' ? incomeMap : expenseMap;
+                target[t.category] = (target[t.category] || 0) + parseFloat(t.amount);
+            }
+        });
+
+        // 1. Income Chart
+        const incCtx = document.getElementById('incomeChart');
+        if(incCtx) {
+            incomeChartInstance = new Chart(incCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(incomeMap),
+                    datasets: [{ data: Object.values(incomeMap), backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: {size: 10} } } } }
+            });
+        }
+
+        // 2. Expense Chart
+        const expCtx = document.getElementById('expenseChart');
+        if(expCtx) {
+            expenseChartInstance = new Chart(expCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(expenseMap),
+                    datasets: [{ data: Object.values(expenseMap), backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#06b6d4'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: {size: 10} } } } }
+            });
+        }
+
+        // 3. Monthly Trends Chart (New - Always shows last 6 months regardless of filter)
+        const historyCtx = document.getElementById('historyChart');
+        if(historyCtx) {
+            // Group by Month (YYYY-MM)
+            const historyData = {};
+            const last6Months = [];
+            for(let i=5; i>=0; i--) {
+                const d = new Date();
+                d.setMonth(d.getMonth() - i);
+                const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                last6Months.push(key);
+                historyData[key] = { income: 0, expense: 0 };
+            }
+
+            transactions.forEach(t => {
+                const tDate = t.date.substring(0, 7); // YYYY-MM
+                if(historyData[tDate]) {
+                    if(t.type === 'income') historyData[tDate].income += parseFloat(t.amount);
+                    else historyData[tDate].expense += parseFloat(t.amount);
+                }
+            });
+
+            historyChartInstance = new Chart(historyCtx, {
+                type: 'bar',
+                data: {
+                    labels: last6Months.map(m => { const [y, mon] = m.split('-'); return `${mon}/${y.slice(2)}`; }), // Format MM/YY
+                    datasets: [
+                        { label: 'Income', data: last6Months.map(m => historyData[m].income), backgroundColor: '#10b981', borderRadius: 4 },
+                        { label: 'Expense', data: last6Months.map(m => historyData[m].expense), backgroundColor: '#ef4444', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+        }
+    }
 };
 
 // --- MODAL & HELPERS ---
@@ -808,7 +837,7 @@ const modal = {
         
         overlay.classList.remove('hidden');
         setTimeout(() => {
-            content.classList.remove('translate-y-full'); // Mobile slide up
+            content.classList.remove('translate-y-full'); 
         }, 10);
 
         let html = `<input type="hidden" name="type" value="${type}">`;
@@ -832,7 +861,8 @@ const modal = {
             title.innerText = 'Add Debt';
             html += `
                 <input type="hidden" name="type" value="debt">
-                <div><label class="${labelClass}">Title</label><input type="text" name="title" required class="${inputClass}"></div>
+                <div><label class="${labelClass}">Title</label><input type="text" name="title" required class="${inputClass}" placeholder="e.g. Car Loan"></div>
+                <div><label class="${labelClass}">Person / Bank</label><input type="text" name="person" required class="${inputClass}" placeholder="e.g. CIB, Ahmed"></div>
                 <div class="grid grid-cols-2 gap-4">
                     <div><label class="${labelClass}">Total</label><input type="number" step="0.01" name="totalAmount" required class="${inputClass}"></div>
                     <div><label class="${labelClass}">Monthly</label><input type="number" step="0.01" name="monthlyPayment" required class="${inputClass}"></div>
