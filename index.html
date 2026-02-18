@@ -2,14 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Money Pro v6.5 (Mobile Optimized)</title>
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Smart Money - Analytics & Debts</title>
+    
+    <!-- Tailwind CSS (Senior Frontend Choice) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font: Inter (Professional & Clean) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
@@ -17,15 +21,17 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        slate: { 850: '#151e2e', 900: '#0f172a' },
-                        primary: { 500: '#6366f1', 600: '#4f46e5' }
+                        dark: '#0f172a',
+                        primary: '#2563eb',
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b'
                     },
                     boxShadow: {
-                        'glow': '0 0 25px rgba(99, 102, 241, 0.25)',
-                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
-                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.05)',
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 0 20px rgba(37, 99, 235, 0.3)',
                     }
                 }
             }
@@ -34,372 +40,242 @@
 
     <style>
         body { background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        .no-scroll::-webkit-scrollbar { display: none; }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
+        .safe-top { padding-top: env(safe-area-inset-top, 20px); }
         
-        /* Animations */
-        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-
-        /* Glassmorphism Utilities */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        .glass {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
-        
-        /* Active Filter Button */
-        .filter-btn-active {
-            background-color: #0f172a;
-            color: white;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
-        }
-        
-        /* Mobile Touch Optimizations */
-        .touch-target { min-height: 48px; }
-        input, select, button { font-size: 16px !important; } /* Prevent iOS zoom */
+
+        .animate-enter { animation: enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="text-slate-800 h-screen overflow-hidden bg-slate-50 selection:bg-indigo-100 selection:text-indigo-700">
+<body class="text-slate-800 h-[100dvh] flex flex-col overflow-hidden selection:bg-blue-100 selection:text-blue-700">
 
     <!-- LOGIN SCREEN -->
-    <div id="login-screen" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 fade-in">
-        <!-- Abstract Background -->
-        <div class="absolute inset-0 overflow-hidden pointer-events-none">
-            <div class="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-indigo-600/20 rounded-full blur-[100px]"></div>
-            <div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-500/15 rounded-full blur-[80px]"></div>
-        </div>
+    <div id="login-screen" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col justify-center p-6 animate-enter">
+        <div class="absolute top-[-10%] right-[-20%] w-[80%] h-[50%] bg-blue-600/20 rounded-full blur-[80px] pointer-events-none"></div>
         
-        <div class="w-full max-w-sm bg-white/5 backdrop-blur-2xl rounded-[3rem] p-8 shadow-2xl relative z-10 border border-white/10">
-            <div class="text-center mb-12">
-                <div class="w-24 h-24 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-glow transform rotate-3 ring-4 ring-white/5">
-                    <i class="fa-solid fa-wallet text-white text-4xl"></i>
+        <div class="relative z-10 w-full max-w-sm mx-auto">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-glow transform rotate-3">
+                    <i class="fa-solid fa-chart-simple text-white text-3xl"></i>
                 </div>
-                <h1 class="text-4xl font-extrabold text-white tracking-tight">Smart Money <span class="text-indigo-400">Pro</span></h1>
-                <p class="text-slate-400 text-base mt-2 font-light">Advanced Financial Intelligence</p>
+                <h1 class="text-3xl font-black text-white tracking-tight">Smart Money</h1>
+                <p class="text-slate-400 text-sm mt-2 font-medium">Financial Control Center</p>
             </div>
-            <form id="login-form" class="space-y-6">
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Secure Identity</label>
-                    <div class="relative group">
-                        <i class="fa-solid fa-phone absolute left-6 top-1/2 -translate-y-1/2 text-slate-500 text-lg group-focus-within:text-indigo-400 transition-colors"></i>
-                        <input type="tel" id="login-phone" class="w-full bg-slate-900/50 border border-slate-700 text-white text-xl rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent block pl-14 pr-4 py-5 outline-none font-mono transition-all placeholder:text-slate-600 font-bold" placeholder="01xxxxxxxxx" required>
-                    </div>
+            
+            <form id="login-form" class="space-y-4">
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-1 flex items-center">
+                    <div class="w-12 h-12 flex items-center justify-center text-slate-400"><i class="fa-solid fa-phone"></i></div>
+                    <input type="tel" id="login-phone" class="bg-transparent w-full text-white font-bold outline-none placeholder:text-slate-600 h-12" placeholder="01xxxxxxxxx" required>
                 </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Access Key</label>
-                    <div class="relative group">
-                        <i class="fa-solid fa-key absolute left-6 top-1/2 -translate-y-1/2 text-slate-500 text-lg group-focus-within:text-indigo-400 transition-colors"></i>
-                        <input type="password" id="login-pass" class="w-full bg-slate-900/50 border border-slate-700 text-white text-xl rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent block pl-14 pr-4 py-5 outline-none font-mono transition-all placeholder:text-slate-600 font-bold" placeholder="••••••••" required>
-                    </div>
+                
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-1 flex items-center">
+                    <div class="w-12 h-12 flex items-center justify-center text-slate-400"><i class="fa-solid fa-lock"></i></div>
+                    <input type="password" id="login-pass" class="bg-transparent w-full text-white font-bold outline-none placeholder:text-slate-600 h-12" placeholder="Passcode" required>
                 </div>
-                <div id="login-error" class="text-rose-400 text-sm text-center font-medium hidden bg-rose-500/10 py-4 rounded-2xl border border-rose-500/20">
-                    <i class="fa-solid fa-triangle-exclamation mr-2"></i> Access Denied
-                </div>
-                <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-500 font-bold rounded-2xl text-xl px-5 py-5 text-center shadow-lg shadow-indigo-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-3 mt-4 group">
-                    <span>Initialize Dashboard</span>
-                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+
+                <div id="login-error" class="hidden text-rose-400 text-xs font-bold text-center py-2 bg-rose-500/10 rounded-xl">Access Denied</div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/30 transition-all active:scale-[0.98] mt-4">
+                    Access Dashboard
                 </button>
             </form>
-        </div>
-        <div class="mt-8 text-center">
-            <p class="text-slate-500 text-sm font-medium">System v6.5.0</p>
-            <p class="text-slate-600 text-xs mt-1">Authorized for Mohamed Eliwa</p>
+            
+            <p class="text-center text-slate-600 text-[10px] font-bold mt-8 uppercase tracking-widest">Authorized for Mohamed Eliwa</p>
         </div>
     </div>
 
-    <!-- MAIN APPLICATION -->
-    <div id="app-container" class="hidden flex h-full">
+    <!-- MAIN APP CONTAINER -->
+    <div id="app-container" class="hidden flex-1 flex flex-col h-full bg-[#f8fafc]">
         
-        <!-- SIDEBAR (Desktop - Unchanged) -->
-        <aside class="w-80 bg-slate-900 hidden md:flex flex-col shadow-2xl z-20 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-            <div class="p-8 pb-6 relative z-10">
-                <div class="flex items-center gap-4 mb-8">
-                    <div class="relative group cursor-pointer" onclick="document.getElementById('avatar-upload').click()">
-                        <div class="w-14 h-14 rounded-full p-[2px] bg-gradient-to-tr from-indigo-500 to-purple-500">
-                            <img id="sidebar-avatar" src="" class="w-full h-full rounded-full border-2 border-slate-900 object-cover">
-                        </div>
-                        <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm">
-                            <i class="fa-solid fa-camera text-white text-sm"></i>
-                        </div>
+        <!-- HEADER -->
+        <header class="glass fixed top-0 w-full z-30 safe-top">
+            <div class="px-5 py-3 flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-slate-200 overflow-hidden border border-slate-300 cursor-pointer" onclick="document.getElementById('avatar-upload').click()">
+                        <img id="header-avatar" src="" class="w-full h-full object-cover">
                     </div>
                     <div>
-                        <h2 id="sidebar-name" class="text-white font-bold text-lg tracking-tight leading-tight"></h2>
-                        <span class="text-[10px] text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 font-bold tracking-wide">PRO LICENSE</span>
+                        <h1 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Balance</h1>
+                        <p class="text-lg font-black text-slate-900 leading-none" id="header-balance">EGP 0</p>
                     </div>
                 </div>
-                <button onclick="app.toggleActionSheet()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl font-bold flex items-center justify-center gap-2 mb-4 shadow-lg shadow-indigo-500/20 transition-all active:scale-95">
-                    <i class="fa-solid fa-plus-circle"></i> New Transaction
-                </button>
-                <div class="grid grid-cols-2 gap-3 mb-2">
-                    <div class="bg-slate-800/50 p-3 rounded-2xl border border-white/5">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">Health Score</p>
-                        <div class="flex items-center gap-2 mt-1">
-                            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                            <span class="text-white font-bold" id="sidebar-health">92</span>
-                        </div>
-                    </div>
-                    <div class="bg-slate-800/50 p-3 rounded-2xl border border-white/5">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">Status</p>
-                        <span class="text-white font-bold text-xs mt-1 block">Active</span>
-                    </div>
-                </div>
-            </div>
-            <nav class="flex-1 px-4 space-y-2 overflow-y-auto no-scrollbar">
-                <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-2">Main Menu</p>
-                <button onclick="app.navigate('dashboard')" id="nav-d-dashboard" class="nav-item-d w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center gap-4 text-slate-400 hover:bg-white/5 hover:text-white group">
-                    <i class="fa-solid fa-chart-line w-5 text-center transition-colors"></i> <span class="font-medium tracking-wide">Dashboard</span>
-                </button>
-                <button onclick="app.navigate('analytics')" id="nav-d-analytics" class="nav-item-d w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center gap-4 text-slate-400 hover:bg-white/5 hover:text-white group">
-                    <i class="fa-solid fa-chart-pie w-5 text-center transition-colors"></i> <span class="font-medium tracking-wide">Analytics</span>
-                </button>
-                <button onclick="app.navigate('transactions')" id="nav-d-transactions" class="nav-item-d w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center gap-4 text-slate-400 hover:bg-white/5 hover:text-white group">
-                    <i class="fa-solid fa-receipt w-5 text-center transition-colors"></i> <span class="font-medium tracking-wide">Transactions</span>
-                </button>
-                <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-6">Planning</p>
-                <button onclick="app.navigate('goals')" id="nav-d-goals" class="nav-item-d w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center gap-4 text-slate-400 hover:bg-white/5 hover:text-white group">
-                    <i class="fa-solid fa-bullseye w-5 text-center transition-colors"></i> <span class="font-medium tracking-wide">Savings Goals</span>
-                </button>
-                <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-6">System</p>
-                <button onclick="app.navigate('settings')" id="nav-d-settings" class="nav-item-d w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center gap-4 text-slate-400 hover:bg-white/5 hover:text-white group">
-                    <i class="fa-solid fa-sliders w-5 text-center transition-colors"></i> <span class="font-medium tracking-wide">Settings</span>
-                </button>
-            </nav>
-            <div class="p-6 border-t border-white/5">
-                <button onclick="location.reload()" class="w-full py-3.5 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 rounded-2xl text-sm font-bold transition-colors flex items-center justify-center gap-2 group">
-                    <i class="fa-solid fa-power-off group-hover:scale-110 transition-transform"></i> Terminate Session
+                <button onclick="app.toggleActionSheet()" class="w-9 h-9 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform">
+                    <i class="fa-solid fa-plus text-sm"></i>
                 </button>
             </div>
-        </aside>
+        </header>
 
-        <!-- CONTENT AREA -->
-        <main class="flex-1 flex flex-col h-full relative w-full bg-[#f8fafc]">
-            
-            <!-- Mobile Header (Bigger & Clearer) -->
-            <div class="md:hidden glass-panel px-6 py-5 flex justify-between items-center sticky top-0 z-20 border-b border-slate-200/60 shadow-sm">
-                <div class="flex items-center gap-4" onclick="app.navigate('settings')">
-                    <div class="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-md">
-                        <img id="mobile-avatar" src="" class="w-full h-full rounded-full border-2 border-white object-cover">
-                    </div>
-                    <div>
-                        <h1 class="font-extrabold text-lg text-slate-800 leading-none mb-1">Mohamed Eliwa</h1>
-                        <span class="text-xs text-indigo-600 font-bold tracking-wider bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">PRO MEMBER</span>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="app.toggleActionSheet()" class="w-11 h-11 bg-slate-900 rounded-full flex items-center justify-center text-white shadow-lg active:scale-90 transition-transform"><i class="fa-solid fa-plus text-lg"></i></button>
-                </div>
-            </div>
+        <!-- CONTENT VIEW -->
+        <main id="main-view" class="flex-1 overflow-y-auto no-scroll pt-20 pb-24 px-5 scroll-smooth animate-enter">
+            <!-- Dynamic Content -->
+        </main>
 
-            <!-- View Container -->
-            <div id="main-view" class="flex-1 overflow-y-auto overflow-x-hidden p-5 md:p-8 pb-40 md:pb-8 scroll-smooth">
-                <!-- Dynamic Content -->
-            </div>
-
-            <!-- Mobile Bottom Nav (Larger Touch Targets) -->
-            <nav class="md:hidden fixed bottom-6 left-5 right-5 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] px-8 py-4 z-30 flex justify-between items-center shadow-2xl shadow-slate-900/40">
-                <button onclick="app.navigate('dashboard')" id="nav-m-dashboard" class="nav-item-m flex flex-col items-center gap-1.5 text-slate-400 transition-all active:scale-90">
-                    <i class="fa-solid fa-house text-2xl"></i>
-                </button>
-                <button onclick="app.navigate('analytics')" id="nav-m-analytics" class="nav-item-m flex flex-col items-center gap-1.5 text-slate-400 transition-all active:scale-90">
-                    <i class="fa-solid fa-chart-pie text-2xl"></i>
+        <!-- BOTTOM NAV -->
+        <nav class="fixed bottom-0 w-full bg-white border-t border-slate-100 z-30 safe-bottom">
+            <div class="grid grid-cols-5 pt-2 pb-1">
+                <button onclick="app.navigate('dashboard')" id="nav-dashboard" class="nav-item flex flex-col items-center gap-1 p-2 text-slate-400">
+                    <i class="fa-solid fa-house text-xl mb-0.5"></i>
+                    <span class="text-[10px] font-bold">Home</span>
                 </button>
                 
-                <button onclick="app.toggleActionSheet()" class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-glow shadow-indigo-500/50 -mt-10 border-[6px] border-[#f8fafc] active:scale-90 transition-transform">
-                    <i class="fa-solid fa-plus text-3xl"></i>
+                <button onclick="app.navigate('analytics')" id="nav-analytics" class="nav-item flex flex-col items-center gap-1 p-2 text-slate-400">
+                    <i class="fa-solid fa-chart-pie text-xl mb-0.5"></i>
+                    <span class="text-[10px] font-bold">Analytics</span>
                 </button>
 
-                <button onclick="app.navigate('goals')" id="nav-m-goals" class="nav-item-m flex flex-col items-center gap-1.5 text-slate-400 transition-all active:scale-90">
-                    <i class="fa-solid fa-bullseye text-2xl"></i>
-                </button>
-                <button onclick="app.navigate('settings')" id="nav-m-settings" class="nav-item-m flex flex-col items-center gap-1.5 text-slate-400 transition-all active:scale-90">
-                    <i class="fa-solid fa-user text-2xl"></i>
-                </button>
-            </nav>
+                <div class="flex justify-center -mt-8 pointer-events-none">
+                    <div class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-600/40 border-[4px] border-[#f8fafc]">
+                        <i class="fa-solid fa-wallet text-xl"></i>
+                    </div>
+                </div>
 
-        </main>
+                <button onclick="app.navigate('debts')" id="nav-debts" class="nav-item flex flex-col items-center gap-1 p-2 text-slate-400">
+                    <i class="fa-solid fa-hand-holding-dollar text-xl mb-0.5"></i>
+                    <span class="text-[10px] font-bold">Debts</span>
+                </button>
+
+                <button onclick="app.navigate('settings')" id="nav-settings" class="nav-item flex flex-col items-center gap-1 p-2 text-slate-400">
+                    <i class="fa-solid fa-gear text-xl mb-0.5"></i>
+                    <span class="text-[10px] font-bold">Settings</span>
+                </button>
+            </div>
+        </nav>
+
     </div>
 
-    <!-- ADD ACTION OVERLAY -->
-    <div id="action-sheet" class="fixed inset-0 z-40 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center fade-in" onclick="app.toggleActionSheet()">
-        <div class="flex flex-col md:flex-row gap-8 md:gap-12 slide-up items-center" onclick="event.stopPropagation()">
-            <!-- Income -->
-            <button onclick="modal.open('income')" class="group flex flex-col items-center gap-4 transition-transform hover:-translate-y-2 active:scale-95">
-                <div class="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl shadow-emerald-500/30 border-2 border-emerald-50">
-                    <i class="fa-solid fa-arrow-down text-4xl text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-emerald-600"></i>
-                </div>
-                <span class="text-white font-bold tracking-wide text-lg bg-slate-900/60 px-5 py-2 rounded-full backdrop-blur-md border border-white/10">Income</span>
-            </button>
-            
-            <!-- Expense -->
-            <button onclick="modal.open('expense')" class="group flex flex-col items-center gap-4 transition-transform hover:-translate-y-2 active:scale-95">
-                <div class="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl shadow-rose-500/30 border-2 border-rose-50">
-                    <i class="fa-solid fa-arrow-up text-4xl text-transparent bg-clip-text bg-gradient-to-br from-rose-400 to-rose-600"></i>
-                </div>
-                <span class="text-white font-bold tracking-wide text-lg bg-slate-900/60 px-5 py-2 rounded-full backdrop-blur-md border border-white/10">Expense</span>
-            </button>
-            
-            <!-- Goal -->
-            <button onclick="modal.open('goal')" class="group flex flex-col items-center gap-4 transition-transform hover:-translate-y-2 active:scale-95">
-                <div class="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl shadow-indigo-500/30 border-2 border-indigo-50">
-                    <i class="fa-solid fa-piggy-bank text-4xl text-transparent bg-clip-text bg-gradient-to-br from-indigo-400 to-purple-600"></i>
-                </div>
-                <span class="text-white font-bold tracking-wide text-lg bg-slate-900/60 px-5 py-2 rounded-full backdrop-blur-md border border-white/10">Save</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- MAIN MODAL (Bigger Inputs) -->
-    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden z-50 flex items-end md:items-center justify-center md:p-4 opacity-0 pointer-events-none transition-all duration-300">
-        <div class="bg-white w-full md:max-w-lg rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden transform translate-y-20 md:scale-95 transition-all duration-300 h-[85vh] md:h-auto flex flex-col" id="modal-content">
-            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
-                <h3 class="font-extrabold text-2xl text-slate-800 flex items-center gap-3" id="modal-title"></h3>
-                <button onclick="modal.close()" class="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:border-rose-200 transition-colors shadow-sm"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            
-            <div class="p-8 overflow-y-auto flex-1">
-                <form id="dynamic-form" class="space-y-6"></form>
-            </div>
-            
-            <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex-shrink-0 safe-pb">
-                <button form="dynamic-form" type="submit" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold shadow-xl shadow-slate-900/20 hover:bg-indigo-600 hover:shadow-indigo-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3 text-xl">
-                    <i class="fa-solid fa-check-circle"></i> Confirm Entry
+    <!-- ACTION SHEET -->
+    <div id="action-sheet" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden flex items-end justify-center transition-opacity opacity-0" onclick="app.toggleActionSheet()">
+        <div class="bg-white w-full rounded-t-[2rem] p-6 pb-safe-bottom transform translate-y-full transition-transform duration-300 shadow-2xl" id="action-sheet-content" onclick="event.stopPropagation()">
+            <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-6"></div>
+            <h3 class="text-center font-bold text-slate-800 mb-6">Quick Action</h3>
+            <div class="grid grid-cols-4 gap-4">
+                <button onclick="modal.open('income')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
+                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center border border-emerald-100"><i class="fa-solid fa-arrow-down text-emerald-600 text-xl"></i></div>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">Income</span>
+                </button>
+                <button onclick="modal.open('expense')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
+                    <div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center border border-rose-100"><i class="fa-solid fa-arrow-up text-rose-600 text-xl"></i></div>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">Expense</span>
+                </button>
+                <button onclick="modal.open('debt')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
+                    <div class="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center border border-orange-100"><i class="fa-solid fa-handshake text-orange-600 text-xl"></i></div>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">Debt</span>
+                </button>
+                <button onclick="modal.open('goal')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
+                    <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100"><i class="fa-solid fa-bullseye text-blue-600 text-xl"></i></div>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">Goal</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Hidden Input -->
+    <!-- UNIVERSAL MODAL -->
+    <div id="modal-overlay" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-200">
+        <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden transform scale-95 transition-transform duration-200" id="modal-content">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-bold text-lg text-slate-800" id="modal-title">Title</h3>
+                <button onclick="modal.close()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6">
+                <form id="dynamic-form" class="space-y-5"></form>
+            </div>
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100">
+                <button form="dynamic-form" type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-all">Save Record</button>
+            </div>
+        </div>
+    </div>
+
     <input type="file" id="avatar-upload" hidden accept="image/*" onchange="app.handleImageUpload(this)">
 
 <script>
-// --- CONFIGURATION ---
-const CONFIG = {
-    phone: '01281507604',
-    pass: '11223344',
-    defaultName: 'MOHAMED ELIWA'
-};
+// --- CONFIG & STORE ---
+const CONFIG = { phone: '01281507604', pass: '11223344', defaultName: 'Mohamed Eliwa' };
 
-// --- AUTH SYSTEM ---
-const Auth = {
-    init: () => {
-        if(localStorage.getItem('isLoggedIn') === 'true') Auth.success();
-        
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const p = document.getElementById('login-phone').value.replace(/\s/g, '');
-            const pass = document.getElementById('login-pass').value;
-
-            if(p === CONFIG.phone && pass === CONFIG.pass) {
-                localStorage.setItem('isLoggedIn', 'true');
-                Auth.success();
-            } else {
-                const err = document.getElementById('login-error');
-                err.classList.remove('hidden');
-                err.classList.add('animate-pulse');
-            }
-        });
-    },
-    success: () => {
-        const screen = document.getElementById('login-screen');
-        screen.style.opacity = '0';
-        setTimeout(() => {
-            screen.classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-            app.init();
-        }, 500);
-    }
-};
-
-// --- DATA STORE ---
 const Store = {
     get: (k) => JSON.parse(localStorage.getItem(k) || '[]'),
     set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
     getUser: () => {
         const u = JSON.parse(localStorage.getItem('userProfile') || '{}');
-        return {
-            name: u.name || CONFIG.defaultName,
-            avatar: u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name || CONFIG.defaultName)}&background=4f46e5&color=fff&size=256`
-        };
+        return { name: u.name || CONFIG.defaultName, avatar: u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name || CONFIG.defaultName)}&background=0f172a&color=fff&size=256` };
     },
     updateUser: (data) => {
         const current = Store.getUser();
         localStorage.setItem('userProfile', JSON.stringify({ ...current, ...data }));
         app.updateProfileUI();
     },
-    addTx: (tx) => {
-        const data = Store.get('transactions');
-        data.push({ ...tx, id: Date.now(), amount: parseFloat(tx.amount) });
-        Store.set('transactions', data);
-    },
+    // Transactions
+    addTx: (tx) => { const d = Store.get('transactions'); d.push({ ...tx, id: Date.now(), amount: parseFloat(tx.amount) }); Store.set('transactions', d); },
     deleteTx: (id) => Store.set('transactions', Store.get('transactions').filter(t => t.id != id)),
-    addGoal: (g) => {
-        const data = Store.get('goals');
-        data.push({ ...g, id: Date.now(), targetAmount: parseFloat(g.targetAmount), savedAmount: parseFloat(g.savedAmount || 0) });
-        Store.set('goals', data);
-    },
-    fundGoal: (id, amt) => {
-        const goals = Store.get('goals');
-        const idx = goals.findIndex(g => g.id == id);
+    // Debts
+    addDebt: (d) => { const data = Store.get('debts'); data.push({ ...d, id: Date.now(), totalAmount: parseFloat(d.totalAmount), paidAmount: 0 }); Store.set('debts', data); },
+    payDebt: (id, amt) => {
+        const debts = Store.get('debts'); const idx = debts.findIndex(d => d.id == id);
         if(idx > -1) {
-            goals[idx].savedAmount += amt;
-            Store.set('goals', goals);
-            Store.addTx({
-                title: `Savings: ${goals[idx].title}`,
-                amount: amt,
-                type: 'expense',
-                category: 'Savings',
-                date: new Date().toISOString().split('T')[0]
-            });
+            debts[idx].paidAmount += amt; Store.set('debts', debts);
+            const isBorrowed = debts[idx].type === 'borrowed';
+            Store.addTx({ title: `Debt: ${debts[idx].title}`, amount: amt, type: isBorrowed ? 'expense' : 'income', category: 'Debt Repayment', date: new Date().toISOString().split('T')[0] });
         }
     },
-    deleteGoal: (id) => Store.set('goals', Store.get('goals').filter(g => g.id != id)),
-    reset: () => {
-        if(confirm('WARNING: This will wipe all data. Continue?')) {
-            localStorage.clear();
-            location.reload();
-        }
-    },
-    export: () => {
-        const blob = new Blob([JSON.stringify(localStorage)], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `backup-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
+    deleteDebt: (id) => Store.set('debts', Store.get('debts').filter(d => d.id != id)),
+    // Goals
+    addGoal: (g) => { const data = Store.get('goals'); data.push({ ...g, id: Date.now(), target: parseFloat(g.target), saved: 0 }); Store.set('goals', data); },
+    
+    // Logic
+    getBalance: () => {
+        const txs = Store.get('transactions');
+        const income = txs.filter(t => t.type === 'income').reduce((a,b) => a + b.amount, 0);
+        const expense = txs.filter(t => t.type === 'expense').reduce((a,b) => a + b.amount, 0);
+        return { income, expense, total: income - expense };
     }
 };
 
-// --- APP CONTROLLER ---
+// --- AUTH ---
+const Auth = {
+    init: () => {
+        if(localStorage.getItem('isLoggedIn') === 'true') Auth.success();
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const p = document.getElementById('login-phone').value.replace(/\s/g, '');
+            const pass = document.getElementById('login-pass').value;
+            if(p === CONFIG.phone && pass === CONFIG.pass) { localStorage.setItem('isLoggedIn', 'true'); Auth.success(); } 
+            else { document.getElementById('login-error').classList.remove('hidden'); }
+        });
+    },
+    success: () => {
+        const screen = document.getElementById('login-screen');
+        screen.style.opacity = '0';
+        setTimeout(() => { screen.classList.add('hidden'); document.getElementById('app-container').classList.remove('hidden'); app.init(); }, 400);
+    }
+};
+
+// --- APP ---
 const app = {
     view: 'dashboard',
     filterMode: 'monthly',
     filterValue: new Date().toISOString().slice(0, 7),
 
     init: () => {
-        const today = new Date();
-        app.filterMode = 'monthly';
-        app.filterValue = today.toISOString().slice(0, 7);
         app.updateProfileUI();
         app.navigate('dashboard');
     },
 
     updateProfileUI: () => {
         const user = Store.getUser();
-        document.getElementById('sidebar-name').innerText = user.name;
-        document.getElementById('sidebar-avatar').src = user.avatar;
-        document.getElementById('mobile-avatar').src = user.avatar;
+        const balance = Store.getBalance().total;
+        document.getElementById('header-avatar').src = user.avatar;
+        document.getElementById('header-balance').innerText = `EGP ${balance.toLocaleString()}`;
     },
 
     handleImageUpload: (input) => {
-        if(input.files && input.files[0]) {
+        if(input.files[0]) {
             const reader = new FileReader();
             reader.onload = (e) => Store.updateUser({ avatar: e.target.result });
             reader.readAsDataURL(input.files[0]);
@@ -408,588 +284,258 @@ const app = {
 
     navigate: (v) => {
         app.view = v;
-        // Desktop Styles
-        document.querySelectorAll('.nav-item-d').forEach(el => {
-            el.className = "nav-item-d w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center gap-4 text-slate-400 hover:bg-white/5 hover:text-white group";
-        });
-        const dBtn = document.getElementById(`nav-d-${v}`);
-        if(dBtn) dBtn.className = "nav-item-d w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center gap-4 bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 group";
-
-        // Mobile Styles
-        document.querySelectorAll('.nav-item-m').forEach(el => {
-            el.classList.remove('text-indigo-400', 'text-slate-400');
-            el.classList.add('text-slate-400');
-        });
-        const mBtn = document.getElementById(`nav-m-${v}`);
-        if(mBtn) {
-            mBtn.classList.remove('text-slate-400');
-            mBtn.classList.add('text-indigo-400');
-        }
-        app.render();
+        document.querySelectorAll('.nav-item').forEach(el => { el.classList.remove('text-blue-600'); el.classList.add('text-slate-400'); });
+        const active = document.getElementById(`nav-${v}`);
+        if(active) { active.classList.remove('text-slate-400'); active.classList.add('text-blue-600'); }
+        
+        const main = document.getElementById('main-view');
+        main.innerHTML = '';
+        setTimeout(() => {
+            if(v === 'dashboard') main.innerHTML = views.dashboard();
+            else if(v === 'analytics') main.innerHTML = views.analytics();
+            else if(v === 'debts') main.innerHTML = views.debts();
+            else if(v === 'settings') main.innerHTML = views.settings();
+            
+            if(v === 'analytics') app.drawCharts();
+        }, 10);
     },
 
     toggleActionSheet: () => {
-        const sheet = document.getElementById('action-sheet');
-        if(sheet.classList.contains('hidden')) {
-            sheet.classList.remove('hidden');
+        const el = document.getElementById('action-sheet');
+        const content = document.getElementById('action-sheet-content');
+        if(el.classList.contains('hidden')) {
+            el.classList.remove('hidden');
+            setTimeout(() => { el.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
         } else {
-            sheet.classList.add('hidden');
+            content.classList.add('translate-y-full'); el.classList.add('opacity-0');
+            setTimeout(() => el.classList.add('hidden'), 300);
         }
     },
 
-    setFilterMode: (mode) => {
-        app.filterMode = mode;
-        const now = new Date();
-        if(mode === 'daily') app.filterValue = now.toISOString().slice(0, 10);
-        else if(mode === 'monthly') app.filterValue = now.toISOString().slice(0, 7);
-        else if(mode === 'yearly') app.filterValue = now.getFullYear().toString();
-        app.render();
-    },
+    setFilterMode: (m) => { app.filterMode = m; const now=new Date(); app.filterValue = m==='daily'?now.toISOString().slice(0,10) : m==='monthly'?now.toISOString().slice(0,7) : now.getFullYear().toString(); app.navigate('analytics'); },
+    setFilterValue: (v) => { if(v) { app.filterValue = v; app.navigate('analytics'); } },
 
-    setFilterValue: (val) => {
-        if(!val) return;
-        app.filterValue = val;
-        app.render();
-    },
-
-    getAnalytics: () => {
+    getAnalyticsData: () => {
         const txs = Store.get('transactions');
-        let filteredTxs = [], label = '', trendLabels = [], trendData = [], prevExpense = 0;
+        let filteredTxs = [];
+        if(app.filterMode === 'daily') filteredTxs = txs.filter(t => t.date === app.filterValue);
+        else if(app.filterMode === 'monthly') filteredTxs = txs.filter(t => t.date.startsWith(app.filterValue));
+        else filteredTxs = txs.filter(t => t.date.startsWith(app.filterValue));
 
-        if(app.filterMode === 'daily') {
-            filteredTxs = txs.filter(t => t.date === app.filterValue);
-            label = new Date(app.filterValue).toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' });
-            const prevDate = new Date(app.filterValue); prevDate.setDate(prevDate.getDate() - 1);
-            prevExpense = txs.filter(t => t.date === prevDate.toISOString().slice(0, 10) && t.type === 'expense').reduce((a,b)=>a+b.amount,0);
-        } else if(app.filterMode === 'monthly') {
-            filteredTxs = txs.filter(t => t.date.startsWith(app.filterValue));
-            const [y, m] = app.filterValue.split('-');
-            label = new Date(y, m-1).toLocaleString('default', { month: 'long', year: 'numeric' });
-            const daysMap = {};
-            filteredTxs.filter(t=>t.type==='expense').forEach(t => { const d = parseInt(t.date.split('-')[2]); daysMap[d] = (daysMap[d]||0) + t.amount; });
-            trendLabels = Object.keys(daysMap).sort((a,b)=>a-b); trendData = trendLabels.map(d => daysMap[d]);
-            const prevD = new Date(y, m-2);
-            prevExpense = txs.filter(t => t.date.startsWith(prevD.toISOString().slice(0, 7)) && t.type === 'expense').reduce((a,b)=>a+b.amount,0);
-        } else if(app.filterMode === 'yearly') {
-            filteredTxs = txs.filter(t => t.date.startsWith(app.filterValue));
-            label = app.filterValue;
-            const monthsMap = {};
-            filteredTxs.filter(t=>t.type==='expense').forEach(t => { const m = parseInt(t.date.split('-')[1]); monthsMap[m] = (monthsMap[m]||0) + t.amount; });
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            trendLabels = Object.keys(monthsMap).sort((a,b)=>a-b).map(m => monthNames[m-1]); trendData = Object.keys(monthsMap).sort((a,b)=>a-b).map(m => monthsMap[m]);
-            const prevY = parseInt(app.filterValue) - 1;
-            prevExpense = txs.filter(t => t.date.startsWith(prevY.toString()) && t.type === 'expense').reduce((a,b)=>a+b.amount,0);
-        }
-
-        const income = filteredTxs.filter(t => t.type === 'income').reduce((a, b) => a + b.amount, 0);
-        const expense = filteredTxs.filter(t => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
-        const net = income - expense;
-        const savingsRate = income > 0 ? Math.round((net / income) * 100) : 0;
-        const healthScore = Math.min(100, Math.max(0, savingsRate + 30));
-
-        const cats = {}; let topCat = { name: 'None', val: 0 };
-        filteredTxs.filter(t => t.type === 'expense').forEach(t => {
-            cats[t.category] = (cats[t.category] || 0) + t.amount;
-            if(cats[t.category] > topCat.val) topCat = { name: t.category, val: cats[t.category] };
-        });
-
-        let maxDay = { label: '-', val: 0 };
-        if(app.filterMode !== 'daily') {
-            const dateMap = {};
-            filteredTxs.filter(t => t.type === 'expense').forEach(t => {
-                dateMap[t.date] = (dateMap[t.date] || 0) + t.amount;
-                if(dateMap[t.date] > maxDay.val) maxDay = { label: t.date, val: dateMap[t.date] };
-            });
-        }
-
-        const historyMap = {};
-        Store.get('transactions').forEach(t => {
-            const k = t.date.slice(0, 7);
-            if(!historyMap[k]) historyMap[k] = { income: 0, expense: 0 };
-            if(t.type === 'income') historyMap[k].income += t.amount; else historyMap[k].expense += t.amount;
-        });
-        const history = Object.entries(historyMap).map(([k, v]) => ({ month: k, ...v, net: v.income - v.expense })).sort((a,b) => b.month.localeCompare(a.month));
-
-        return { txs: filteredTxs, income, expense, net, savingsRate, healthScore, prevExpense, maxDay, topCat, label, history, trendLabels, trendData };
+        const income = filteredTxs.filter(t => t.type === 'income').reduce((a,b)=>a+b.amount,0);
+        const expense = filteredTxs.filter(t => t.type === 'expense').reduce((a,b)=>a+b.amount,0);
+        const cats = {}; filteredTxs.filter(t=>t.type==='expense').forEach(t => cats[t.category] = (cats[t.category]||0)+t.amount);
+        
+        return { income, expense, cats };
     },
 
-    render: () => {
-        const data = app.getAnalytics();
-        const main = document.getElementById('main-view');
-        if(document.getElementById('sidebar-health')) document.getElementById('sidebar-health').innerText = data.healthScore;
-
-        let html = '';
-        if(app.view === 'dashboard') html = views.dashboard(data);
-        else if(app.view === 'transactions') html = views.transactions(data);
-        else if(app.view === 'goals') html = views.goals();
-        else if(app.view === 'analytics') html = views.analytics(data);
-        else if(app.view === 'settings') html = views.settings();
-
-        main.innerHTML = `<div class="fade-in">${html}</div>`;
-        if(app.view === 'dashboard' || app.view === 'analytics') setTimeout(() => app.drawCharts(data), 50);
-    },
-
-    drawCharts: (data) => {
-        const colors = { indigo: '#6366f1', purple: '#8b5cf6', emerald: '#10b981', rose: '#f43f5e', orange: '#f97316', sky: '#0ea5e9', slate: '#cbd5e1' };
-        if(!document.getElementById('chartCategories')) return;
-
-        const ctxCat = document.getElementById('chartCategories');
-        if(ctxCat) {
-            if(Chart.getChart(ctxCat)) Chart.getChart(ctxCat).destroy();
-            const cats = {}; data.txs.filter(t => t.type === 'expense').forEach(t => cats[t.category] = (cats[t.category]||0) + t.amount);
-            const hasData = Object.keys(cats).length > 0;
-            new Chart(ctxCat, {
-                type: 'doughnut',
-                data: {
-                    labels: hasData ? Object.keys(cats) : ['No Data'],
-                    datasets: [{ data: hasData ? Object.values(cats) : [1], backgroundColor: hasData ? [colors.rose, colors.orange, colors.purple, colors.emerald, colors.sky, '#eab308'] : [colors.slate], borderWidth: 0, hoverOffset: 15 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: {family: 'Outfit', size: 14} } } } }
-            });
-        }
-
-        const ctxTrend = document.getElementById('chartTrend');
-        if(ctxTrend && app.filterMode !== 'daily' && data.trendData.length > 0) {
-            if(Chart.getChart(ctxTrend)) Chart.getChart(ctxTrend).destroy();
-            const gradient = ctxTrend.getContext('2d').createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)'); gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
-            new Chart(ctxTrend, {
-                type: 'line',
-                data: { labels: data.trendLabels, datasets: [{ label: 'Spend', data: data.trendData, borderColor: colors.indigo, backgroundColor: gradient, fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderColor: colors.indigo, pointBorderWidth: 2 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: {display: false} }, y: { display: false } } }
-            });
-        }
-
-        const ctxBar = document.getElementById('chartBar');
-        if(ctxBar) {
-            if(Chart.getChart(ctxBar)) Chart.getChart(ctxBar).destroy();
-            new Chart(ctxBar, {
-                type: 'bar',
-                data: { labels: ['In', 'Out'], datasets: [{ data: [data.income, data.expense], backgroundColor: [colors.emerald, colors.rose], borderRadius: 10, barThickness: 40 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false, beginAtZero: true }, x: { grid: { display: false } } } }
-            });
-        }
+    drawCharts: () => {
+        const data = app.getAnalyticsData();
+        const ctx = document.getElementById('chartCats');
+        if(!ctx) return;
+        if(Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(data.cats).length ? Object.keys(data.cats) : ['No Data'],
+                datasets: [{
+                    data: Object.values(data.cats).length ? Object.values(data.cats) : [1],
+                    backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#6366f1'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: {family: 'Inter', size: 11} } } } }
+        });
     }
 };
 
+// --- VIEWS ---
 const views = {
-    dashboard: (data) => `
+    dashboard: () => {
+        const balance = Store.getBalance();
+        const txs = Store.get('transactions').slice(-5).reverse();
+        return `
         <div class="space-y-6">
-            <div class="flex flex-col gap-4">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Dashboard</h2>
-                        <p class="text-sm text-slate-500 font-medium">Overview: <span class="text-indigo-600 font-bold">${data.label}</span></p>
+            <div class="bg-slate-900 rounded-[2rem] p-6 text-white shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-blue-500 rounded-full blur-[60px] opacity-20 pointer-events-none"></div>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Available</p>
+                <h2 class="text-4xl font-black mb-6">EGP ${balance.total.toLocaleString()}</h2>
+                <div class="flex gap-4">
+                    <div class="flex-1 bg-white/10 rounded-xl p-3 border border-white/5">
+                        <div class="flex items-center gap-2 mb-1"><div class="w-2 h-2 rounded-full bg-emerald-400"></div><span class="text-[10px] text-slate-300 font-bold uppercase">Income</span></div>
+                        <p class="font-bold text-lg">${balance.income.toLocaleString()}</p>
                     </div>
-                    <div class="flex flex-col items-end gap-2">
-                        <div class="flex bg-white rounded-xl p-1 shadow-sm border border-slate-200">
-                            <button onclick="app.setFilterMode('daily')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all ${app.filterMode === 'daily' ? 'filter-btn-active' : 'text-slate-500 hover:bg-slate-50'}">Day</button>
-                            <button onclick="app.setFilterMode('monthly')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all ${app.filterMode === 'monthly' ? 'filter-btn-active' : 'text-slate-500 hover:bg-slate-50'}">Month</button>
-                            <button onclick="app.setFilterMode('yearly')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all ${app.filterMode === 'yearly' ? 'filter-btn-active' : 'text-slate-500 hover:bg-slate-50'}">Year</button>
-                        </div>
-                        <div class="bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm w-full">
-                            ${app.filterMode === 'daily' ? `<input type="date" value="${app.filterValue}" onchange="app.setFilterValue(this.value)" class="text-sm font-bold bg-transparent outline-none text-slate-700 w-full">` : ''}
-                            ${app.filterMode === 'monthly' ? `<input type="month" value="${app.filterValue}" onchange="app.setFilterValue(this.value)" class="text-sm font-bold bg-transparent outline-none text-slate-700 w-full">` : ''}
-                            ${app.filterMode === 'yearly' ? `<input type="number" min="2000" max="2099" value="${app.filterValue}" onchange="app.setFilterValue(this.value)" class="text-sm font-bold bg-transparent outline-none text-slate-700 w-full">` : ''}
-                        </div>
+                    <div class="flex-1 bg-white/10 rounded-xl p-3 border border-white/5">
+                        <div class="flex items-center gap-2 mb-1"><div class="w-2 h-2 rounded-full bg-rose-400"></div><span class="text-[10px] text-slate-300 font-bold uppercase">Expense</span></div>
+                        <p class="font-bold text-lg">${balance.expense.toLocaleString()}</p>
                     </div>
                 </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                <div class="glass-panel p-6 rounded-[2rem] relative overflow-hidden group shadow-card">
-                    <p class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-1">Income</p>
-                    <h3 class="text-3xl font-black text-slate-800 tracking-tight">EGP ${data.income.toLocaleString()}</h3>
-                    <div class="w-full h-1.5 bg-emerald-100 mt-4 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: 100%"></div></div>
-                </div>
-                
-                <div class="glass-panel p-6 rounded-[2rem] relative overflow-hidden group shadow-card">
-                    <p class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-1">Expense</p>
-                    <h3 class="text-3xl font-black text-slate-800 tracking-tight">EGP ${data.expense.toLocaleString()}</h3>
-                    <div class="w-full h-1.5 bg-rose-100 mt-4 rounded-full overflow-hidden"><div class="h-full bg-rose-500" style="width: ${data.income > 0 ? Math.min(100, (data.expense/data.income)*100) : 0}%"></div></div>
-                </div>
-
-                <div class="bg-slate-900 text-white p-6 rounded-[2rem] shadow-xl shadow-slate-900/30 relative overflow-hidden md:col-span-2">
-                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-20"></div>
-                    <div class="relative z-10 flex flex-col justify-center h-full gap-2">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-indigo-300 text-xs font-extrabold uppercase tracking-widest mb-1">Net Balance</p>
-                                <h3 class="text-5xl font-black tracking-tighter">EGP ${data.net.toLocaleString()}</h3>
-                            </div>
-                            <div class="text-right">
-                                <span class="block text-3xl font-black text-emerald-400">${data.savingsRate}%</span>
-                                <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wide">Saved</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-white p-6 rounded-[2rem] shadow-card border border-slate-100 flex items-center gap-5">
-                    <div class="w-14 h-14 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-fire"></i></div>
-                    <div>
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">Top Category</p>
-                        <p class="text-lg font-bold text-slate-800 leading-tight">${data.topCat.name}</p>
-                        <p class="text-xs font-semibold text-slate-400">EGP ${data.topCat.val.toLocaleString()}</p>
-                    </div>
-                </div>
-                
-                <div class="bg-white p-6 rounded-[2rem] shadow-card border border-slate-100 flex items-center gap-5">
-                    <div class="w-14 h-14 rounded-full ${data.expense > data.prevExpense ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'} flex items-center justify-center text-2xl">
-                        <i class="fa-solid ${data.expense > data.prevExpense ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">vs Previous</p>
-                        <p class="text-lg font-bold ${data.expense > data.prevExpense ? 'text-rose-500' : 'text-emerald-500'} leading-tight">
-                            ${Math.abs(data.expense - data.prevExpense).toLocaleString()} EGP
-                        </p>
-                        <p class="text-xs font-semibold text-slate-400">${data.expense > data.prevExpense ? 'More spent' : 'Less spent'}</p>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-[2rem] shadow-card border border-slate-100 flex items-center gap-5">
-                    <div class="w-14 h-14 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-calendar-day"></i></div>
-                    <div>
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">Peak Spending</p>
-                        <p class="text-lg font-bold text-slate-800 leading-tight">${data.maxDay.label}</p>
-                        <p class="text-xs font-semibold text-slate-400">EGP ${data.maxDay.val.toLocaleString()}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                ${app.filterMode !== 'daily' ? `
-                <div class="bg-white p-6 rounded-[2.5rem] shadow-card border border-slate-100 lg:col-span-2">
-                    <h3 class="font-bold text-slate-800 mb-6 flex items-center gap-2 text-lg">
-                        <i class="fa-solid fa-chart-area text-indigo-500"></i> Spending Trend
-                    </h3>
-                    <div class="h-72 w-full"><canvas id="chartTrend"></canvas></div>
-                </div>
-                ` : `
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-card border border-slate-100 lg:col-span-2 flex flex-col items-center justify-center text-center h-80">
-                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 text-3xl mb-4"><i class="fa-solid fa-calendar-xmark"></i></div>
-                    <h3 class="font-bold text-slate-400 text-lg">Trend Chart Unavailable</h3>
-                    <p class="text-sm text-slate-400 mt-1">Switch to Month view.</p>
-                </div>
-                `}
-
-                <div class="bg-white p-6 rounded-[2.5rem] shadow-card border border-slate-100">
-                     <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2 text-lg">
-                        <i class="fa-solid fa-chart-pie text-orange-500"></i> Breakdown
-                     </h3>
-                     <div class="h-64 relative"><canvas id="chartCategories"></canvas></div>
-                </div>
-            </div>
-
+            
             <div>
-                <h3 class="font-bold text-2xl text-slate-800 mb-5 px-2">History Log</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    ${data.history.map(h => `
-                        <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-card flex flex-col gap-3">
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-slate-700 text-lg">${new Date(h.month + '-01').toLocaleString('default', {month:'short', year:'2-digit'})}</span>
-                                <span class="text-xs font-bold ${h.net >= 0 ? 'text-emerald-500 bg-emerald-50' : 'text-rose-500 bg-rose-50'} px-3 py-1.5 rounded-lg">
-                                    ${h.net >= 0 ? '+' : ''}${h.net.toLocaleString()}
-                                </span>
+                <h3 class="font-bold text-slate-800 text-lg mb-4 px-1">Recent Activity</h3>
+                <div class="space-y-3">
+                    ${txs.length === 0 ? '<div class="text-center py-8 text-slate-400 text-sm font-medium">No transactions yet</div>' : txs.map(t => `
+                        <div class="bg-white p-4 rounded-2xl shadow-soft flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg ${t.type === 'income' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-600'}">
+                                    <i class="fa-solid ${t.category.includes('Debt') ? 'fa-handshake' : t.type === 'income' ? 'fa-arrow-down' : 'fa-bag-shopping'}"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">${t.title}</h4>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">${t.category}</p>
+                                </div>
                             </div>
-                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-indigo-500" style="width: ${h.income > 0 ? Math.min(100, (h.expense/h.income)*100) : 0}%"></div>
-                            </div>
-                            <div class="flex justify-between text-xs font-bold text-slate-400">
-                                <span>In: ${h.income.toLocaleString()}</span>
-                                <span>Out: ${h.expense.toLocaleString()}</span>
-                            </div>
+                            <span class="font-bold ${t.type === 'income' ? 'text-emerald-600' : 'text-slate-800'}">
+                                ${t.type === 'income' ? '+' : '-'} ${t.amount.toLocaleString()}
+                            </span>
                         </div>
                     `).join('')}
                 </div>
             </div>
-        </div>
-    `,
+        </div>`;
+    },
 
-    transactions: (data) => `
-        <div class="max-w-4xl mx-auto">
-            <div class="mb-8">
-                <h2 class="text-3xl font-extrabold text-slate-800">Transaction History</h2>
-                <p class="text-base text-slate-500 mt-1">Records for <span class="text-indigo-600 font-bold">${data.label}</span></p>
-            </div>
-
-            <div class="space-y-4">
-                ${data.txs.length === 0 ? `
-                    <div class="flex flex-col items-center justify-center py-20 text-slate-300">
-                        <i class="fa-solid fa-file-invoice text-6xl mb-6"></i>
-                        <p class="text-lg font-medium">No transactions found for this period.</p>
-                    </div>
-                ` : data.txs.sort((a,b) => b.id - a.id).map(t => `
-                    <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-card flex items-center justify-between group hover:border-indigo-100 transition-colors">
-                        <div class="flex items-center gap-5">
-                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 ${t.type === 'income' ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}">
-                                <i class="fa-solid ${t.category === 'Savings' ? 'fa-piggy-bank' : t.type === 'income' ? 'fa-arrow-down' : 'fa-cart-shopping'}"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <h4 class="font-bold text-slate-800 text-lg truncate pr-2">${t.title}</h4>
-                                <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mt-1">
-                                    <span class="bg-slate-100 px-2 py-0.5 rounded-md text-slate-500">${t.category}</span>
-                                    <span>•</span>
-                                    <span>${t.date}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-right flex items-center gap-4 flex-shrink-0">
-                            <div class="font-black text-xl ${t.type === 'income' ? 'text-emerald-600' : 'text-slate-800'}">
-                                ${t.type === 'income' ? '+' : '-'} ${t.amount.toLocaleString()}
-                            </div>
-                            <button onclick="Store.deleteTx(${t.id}); app.render()" class="w-10 h-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-100 transition-colors">
-                                <i class="fa-solid fa-trash text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `,
-
-    goals: () => {
-        const goals = Store.get('goals');
+    analytics: () => {
+        const data = app.getAnalyticsData();
         return `
-        <div class="space-y-8">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-3xl font-extrabold text-slate-800">Savings Goals</h2>
-                    <p class="text-base text-slate-500 mt-1">Visualize your dreams</p>
-                </div>
-                <button onclick="modal.open('goal')" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-colors active:scale-95 text-sm">
-                    <i class="fa-solid fa-plus mr-2"></i> New
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                ${goals.length === 0 ? `
-                    <div class="col-span-full py-24 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center">
-                        <div class="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-400 text-4xl"><i class="fa-solid fa-rocket"></i></div>
-                        <h3 class="font-bold text-slate-700 text-xl">No active goals</h3>
-                        <p class="text-slate-400 text-base mt-2 max-w-xs mx-auto">Create a goal to start tracking your progress towards something special.</p>
-                    </div>
-                ` : goals.map(g => {
-                    const pct = Math.min(100, Math.round((g.savedAmount / g.targetAmount) * 100));
-                    return `
-                    <div class="bg-white p-7 rounded-[2.5rem] shadow-card border border-slate-100 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 w-40 h-40 bg-indigo-500/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700"></div>
-                        
-                        <div class="relative z-10">
-                            <div class="flex justify-between items-start mb-6">
-                                <div>
-                                    <h3 class="font-bold text-2xl text-slate-800">${g.title}</h3>
-                                    <p class="text-xs font-extrabold text-slate-400 uppercase tracking-wide mt-1">Target: ${g.targetAmount.toLocaleString()}</p>
-                                </div>
-                                <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-base shadow-sm">
-                                    ${pct}%
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3 flex items-baseline gap-1">
-                                <span class="text-4xl font-black text-slate-800">${g.savedAmount.toLocaleString()}</span>
-                                <span class="text-sm font-bold text-slate-400">EGP</span>
-                            </div>
-
-                            <div class="w-full h-5 bg-slate-100 rounded-full mb-8 overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all duration-1000" style="width: ${pct}%"></div>
-                            </div>
-
-                            <div class="flex gap-4">
-                                <button onclick="modal.openAddMoney(${g.id})" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-bold text-base hover:bg-slate-800 transition-colors active:scale-95 shadow-lg shadow-slate-900/10">
-                                    Add Funds
-                                </button>
-                                <button onclick="Store.deleteGoal(${g.id}); app.render()" class="w-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center hover:bg-rose-100 transition-colors">
-                                    <i class="fa-solid fa-trash text-lg"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `}).join('')}
-            </div>
-        </div>
-    `},
-
-    analytics: (data) => `
-        <div class="space-y-8">
-            <div>
-                <h2 class="text-3xl font-extrabold text-slate-800">Analytics</h2>
-                <p class="text-base text-slate-500 mt-1">Analysis based on <span class="text-indigo-600 font-bold">${data.label}</span> data</p>
-            </div>
-
-            <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[3rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-indigo-600/30">
-                <div class="absolute right-0 top-0 w-80 h-80 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
-                    <div>
-                        <p class="text-indigo-200 font-extrabold uppercase tracking-widest text-xs mb-3">Financial Health Score</p>
-                        <h3 class="text-6xl font-black mb-3">${data.healthScore}/100</h3>
-                        <p class="text-base text-indigo-100 max-w-md opacity-90 font-medium">
-                            ${data.healthScore > 80 ? 'Excellent! You are mastering your finances.' : data.healthScore > 50 ? 'Good job. Keep optimizing your savings.' : 'Needs attention. Try to reduce expenses.'}
-                        </p>
-                    </div>
-                    <div class="w-40 h-40 rounded-full border-[10px] border-white/20 flex items-center justify-center text-4xl font-bold relative flex-shrink-0">
-                        <i class="fa-solid fa-heart-pulse"></i>
-                        <svg class="absolute inset-0 w-full h-full rotate-[-90deg]">
-                            <circle cx="70" cy="70" r="65" fill="none" stroke="white" stroke-width="10" stroke-dasharray="408" stroke-dashoffset="${408 - (408 * data.healthScore) / 100}" stroke-linecap="round" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-card border border-slate-100">
-                    <h3 class="font-bold text-slate-800 mb-6 text-lg">Income vs Expense Ratio</h3>
-                    <div class="h-72"><canvas id="chartBar"></canvas></div>
-                </div>
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-card border border-slate-100">
-                    <h3 class="font-bold text-slate-800 mb-6 text-lg">Spending Distribution</h3>
-                    <div class="h-72 flex justify-center"><canvas id="chartCategories"></canvas></div>
-                </div>
-            </div>
-        </div>
-    `,
-
-    settings: () => {
-        const user = Store.getUser();
-        return `
-        <div class="max-w-xl mx-auto space-y-8">
-            <div class="text-center md:text-left">
-                <h2 class="text-3xl font-extrabold text-slate-800">Settings</h2>
-                <p class="text-base text-slate-500 mt-1">Configure your workspace</p>
-            </div>
-
-            <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-card overflow-hidden">
-                <div class="p-8 border-b border-slate-50 flex items-center gap-6">
-                    <div class="relative group cursor-pointer flex-shrink-0" onclick="document.getElementById('avatar-upload').click()">
-                        <img src="${user.avatar}" class="w-24 h-24 rounded-full border-4 border-slate-50 object-cover shadow-lg">
-                        <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all">
-                            <i class="fa-solid fa-pen"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-2xl text-slate-800">${user.name}</h3>
-                        <p class="text-sm font-semibold text-slate-400 mt-1">Tap avatar to update photo</p>
-                    </div>
-                </div>
-                
-                <div class="p-6 space-y-4">
-                    <button onclick="Store.export()" class="w-full flex items-center justify-between p-5 rounded-[1.5rem] hover:bg-slate-50 transition-colors group border border-transparent hover:border-slate-200 bg-slate-50/50">
-                        <div class="flex items-center gap-5">
-                            <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl"><i class="fa-solid fa-cloud-arrow-down"></i></div>
-                            <div class="text-left">
-                                <h4 class="font-bold text-slate-800 text-lg">Backup Data</h4>
-                                <p class="text-xs font-semibold text-slate-400">Save JSON file locally</p>
-                            </div>
-                        </div>
-                    </button>
-
-                    <button onclick="Store.reset()" class="w-full flex items-center justify-between p-5 rounded-[1.5rem] hover:bg-rose-50 transition-colors group border border-transparent hover:border-rose-100 bg-rose-50/30">
-                        <div class="flex items-center gap-5">
-                            <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                            <div class="text-left">
-                                <h4 class="font-bold text-rose-600 text-lg">Factory Reset</h4>
-                                <p class="text-xs font-semibold text-rose-400">Permanently delete all data</p>
-                            </div>
-                        </div>
-                    </button>
+        <div class="space-y-6">
+            <div class="flex justify-between items-end">
+                <h2 class="text-2xl font-bold text-slate-800">Analytics</h2>
+                <div class="flex bg-white rounded-lg p-1 shadow-sm border border-slate-200">
+                    <button onclick="app.setFilterMode('monthly')" class="px-3 py-1 text-[10px] font-bold rounded-md ${app.filterMode === 'monthly' ? 'bg-slate-900 text-white' : 'text-slate-500'}">Month</button>
+                    <button onclick="app.setFilterMode('yearly')" class="px-3 py-1 text-[10px] font-bold rounded-md ${app.filterMode === 'yearly' ? 'bg-slate-900 text-white' : 'text-slate-500'}">Year</button>
                 </div>
             </div>
             
-            <div class="text-center pt-8">
-                <p class="text-xs font-extrabold text-slate-300 uppercase tracking-widest">Smart Money Pro v6.5 (Mobile Optimized)</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-emerald-500 text-white p-5 rounded-3xl shadow-lg shadow-emerald-500/20">
+                    <p class="text-emerald-100 text-xs font-bold uppercase mb-1">Income</p>
+                    <p class="text-2xl font-black">${data.income.toLocaleString()}</p>
+                </div>
+                <div class="bg-rose-500 text-white p-5 rounded-3xl shadow-lg shadow-rose-500/20">
+                    <p class="text-rose-100 text-xs font-bold uppercase mb-1">Expense</p>
+                    <p class="text-2xl font-black">${data.expense.toLocaleString()}</p>
+                </div>
             </div>
-        </div>
-    `}
+
+            <div class="bg-white p-6 rounded-[2rem] shadow-soft border border-slate-100">
+                <h3 class="font-bold text-slate-800 mb-6 text-sm flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-500"></i> Spending Breakdown</h3>
+                <div class="h-64 relative">
+                    <canvas id="chartCats"></canvas>
+                </div>
+            </div>
+        </div>`;
+    },
+
+    debts: () => {
+        const debts = Store.get('debts');
+        const iOwe = debts.filter(d => d.type === 'borrowed').reduce((a,b) => a + (b.totalAmount - b.paidAmount), 0);
+        const owedToMe = debts.filter(d => d.type === 'lent').reduce((a,b) => a + (b.totalAmount - b.paidAmount), 0);
+        return `
+        <div class="space-y-6">
+            <h2 class="text-2xl font-bold text-slate-800">Debt Manager</h2>
+            <div class="flex gap-4 overflow-x-auto no-scroll pb-2">
+                <div class="min-w-[160px] bg-white p-5 rounded-3xl shadow-soft border-l-4 border-rose-500">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">You Owe</p>
+                    <p class="text-xl font-black text-rose-600 mt-1">${iOwe.toLocaleString()}</p>
+                </div>
+                <div class="min-w-[160px] bg-white p-5 rounded-3xl shadow-soft border-l-4 border-emerald-500">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Owed to You</p>
+                    <p class="text-xl font-black text-emerald-600 mt-1">${owedToMe.toLocaleString()}</p>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                ${debts.length === 0 ? '<div class="text-center py-10 text-slate-400 text-sm">No active debts</div>' : debts.map(d => {
+                    const remaining = d.totalAmount - d.paidAmount;
+                    const pct = Math.round((d.paidAmount / d.totalAmount) * 100);
+                    return remaining > 0 ? `
+                    <div class="bg-white p-5 rounded-3xl shadow-soft relative">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex gap-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm ${d.type === 'borrowed' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}">
+                                    <i class="fa-solid ${d.type === 'borrowed' ? 'fa-arrow-down' : 'fa-arrow-up'}"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-sm">${d.title}</h3>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">${d.type === 'borrowed' ? 'Borrowed' : 'Lent'}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-slate-400 font-bold">Remaining</p>
+                                <p class="font-black text-slate-800 text-lg">${remaining.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full ${d.type === 'borrowed' ? 'bg-rose-500' : 'bg-emerald-500'}" style="width: ${pct}%"></div>
+                            </div>
+                            <span class="text-xs font-bold text-slate-400">${pct}%</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="modal.openPayDebt(${d.id}, '${d.type}')" class="flex-1 bg-slate-900 text-white text-xs font-bold py-3 rounded-xl active:scale-95 transition-transform">${d.type === 'borrowed' ? 'Pay Off' : 'Collect'}</button>
+                            <button onclick="Store.deleteDebt(${d.id}); app.navigate('debts')" class="w-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center hover:text-rose-500"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </div>
+                    </div>` : '';
+                }).join('')}
+            </div>
+        </div>`;
+    },
+
+    settings: () => `
+        <div class="space-y-6">
+            <h2 class="text-2xl font-bold text-slate-800">Settings</h2>
+            <div class="bg-white rounded-3xl p-6 shadow-soft text-center" onclick="document.getElementById('avatar-upload').click()">
+                <div class="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-slate-50 shadow-lg mb-4">
+                    <img id="settings-avatar" src="${Store.getUser().avatar}" class="w-full h-full object-cover">
+                </div>
+                <h3 class="font-bold text-xl text-slate-800">${Store.getUser().name}</h3>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Tap to change photo</p>
+            </div>
+            <div class="bg-white rounded-3xl overflow-hidden shadow-soft">
+                <button onclick="Store.reset()" class="w-full p-5 flex items-center justify-between hover:bg-rose-50 transition-colors group">
+                    <span class="font-bold text-rose-500">Reset All Data</span>
+                    <i class="fa-solid fa-trash text-rose-300 group-hover:text-rose-500"></i>
+                </button>
+                <button onclick="localStorage.clear(); location.reload()" class="w-full p-5 flex items-center justify-between hover:bg-slate-50 transition-colors border-t border-slate-50">
+                    <span class="font-bold text-slate-700">Log Out</span>
+                    <i class="fa-solid fa-right-from-bracket text-slate-400"></i>
+                </button>
+            </div>
+        </div>`
 };
 
 const modal = {
-    overlay: document.getElementById('modal-overlay'),
-    content: document.getElementById('modal-content'),
-    form: document.getElementById('dynamic-form'),
-    title: document.getElementById('modal-title'),
-
+    overlay: document.getElementById('modal-overlay'), form: document.getElementById('dynamic-form'), title: document.getElementById('modal-title'),
     open: (type) => {
-        document.getElementById('action-sheet').classList.add('hidden');
-        modal.overlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-        setTimeout(() => modal.content.classList.remove('translate-y-20', 'scale-95'), 10);
-        setTimeout(() => modal.content.classList.add('translate-y-0', 'scale-100'), 10);
-
-        const today = new Date().toISOString().split('T')[0];
-        const inputBase = "w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-5 text-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all font-bold text-slate-700 placeholder:text-slate-400";
-        const labelBase = "text-xs font-extrabold text-slate-400 uppercase ml-1 block mb-2 tracking-widest";
-
+        app.toggleActionSheet(); modal.overlay.classList.remove('hidden'); setTimeout(() => { modal.overlay.classList.remove('opacity-0'); document.getElementById('modal-content').classList.remove('scale-95'); }, 10);
+        const inputClass = "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all";
+        const labelClass = "block text-xs font-bold text-slate-400 uppercase mb-2 ml-1";
+        
         let html = '';
-        if(type === 'income' || type === 'expense') {
-            const isInc = type === 'income';
-            modal.title.innerHTML = isInc 
-                ? '<div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-arrow-down"></i></div> New Income' 
-                : '<div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-arrow-up"></i></div> New Expense';
-            
-            html = `
-                <div><label class="${labelBase}">Description</label><input type="text" name="title" class="${inputBase}" placeholder="e.g. Salary, Uber" required></div>
-                <div><label class="${labelBase}">Amount</label>
-                    <div class="relative">
-                        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">EGP</span>
-                        <input type="number" step="0.01" name="amount" class="${inputBase} pl-16 text-2xl" placeholder="0.00" required>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-5">
-                    <div><label class="${labelBase}">Date</label><input type="date" name="date" value="${today}" class="${inputBase}" required></div>
-                    <div><label class="${labelBase}">Category</label>
-                    <select name="category" class="${inputBase} appearance-none">
-                        ${isInc ? '<option>Salary</option><option>Business</option><option>Freelance</option><option>Gift</option>' : '<option>Food</option><option>Transport</option><option>Shopping</option><option>Entertainment</option><option>Bills</option><option>Health</option><option>Other</option>'}
-                    </select></div>
-                </div>
-            `;
-        } else if(type === 'goal') {
-            modal.title.innerHTML = '<div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-bullseye"></i></div> New Goal';
-            html = `
-                <div><label class="${labelBase}">Goal Name</label><input type="text" name="title" class="${inputBase}" placeholder="e.g. Dream Car" required></div>
-                <div><label class="${labelBase}">Target Amount</label><input type="number" step="0.01" name="targetAmount" class="${inputBase} text-2xl" placeholder="0.00" required></div>
-                <div><label class="${labelBase}">Initial Deposit</label><input type="number" step="0.01" name="savedAmount" value="0" class="${inputBase}"></div>
-            `;
+        if (type === 'debt') {
+            modal.title.innerText = 'Add New Debt';
+            html = `<div><label class="${labelClass}">Type</label><div class="grid grid-cols-2 gap-3"><label class="cursor-pointer"><input type="radio" name="type" value="borrowed" class="peer sr-only" checked><div class="p-3 text-center rounded-xl border border-slate-200 peer-checked:bg-rose-500 peer-checked:text-white peer-checked:border-rose-500 transition-all font-bold text-sm">I Borrowed</div></label><label class="cursor-pointer"><input type="radio" name="type" value="lent" class="peer sr-only"><div class="p-3 text-center rounded-xl border border-slate-200 peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 transition-all font-bold text-sm">I Lent</div></label></div></div><div><label class="${labelClass}">Person Name / Title</label><input type="text" name="title" class="${inputClass}" required></div><div><label class="${labelClass}">Total Amount</label><input type="number" name="totalAmount" class="${inputClass}" required></div>`;
+        } else if (type === 'income' || type === 'expense') {
+            modal.title.innerText = `Add ${type}`;
+            html = `<div><label class="${labelClass}">Amount</label><input type="number" step="0.01" name="amount" class="${inputClass} text-2xl" required></div><div><label class="${labelClass}">Description</label><input type="text" name="title" class="${inputClass}" required></div><div><label class="${labelClass}">Category</label><select name="category" class="${inputClass}"><option>Food</option><option>Transport</option><option>Shopping</option><option>Bills</option><option>Salary</option><option>Other</option></select></div><input type="hidden" name="date" value="${new Date().toISOString().split('T')[0]}">`;
+        } else if (type === 'goal') {
+            modal.title.innerText = 'New Savings Goal';
+            html = `<div><label class="${labelClass}">Goal Name</label><input type="text" name="title" class="${inputClass}" required></div><div><label class="${labelClass}">Target Amount</label><input type="number" name="target" class="${inputClass}" required></div>`;
         }
         modal.form.innerHTML = html;
-        modal.form.onsubmit = (e) => {
-            e.preventDefault();
-            const data = Object.fromEntries(new FormData(modal.form));
-            if(!data.amount && !data.targetAmount) return;
-            if(type === 'goal') Store.addGoal(data); else Store.addTx({ ...data, type });
-            modal.close();
-            app.render();
-        };
+        modal.form.onsubmit = (e) => { e.preventDefault(); const data = Object.fromEntries(new FormData(modal.form)); if(type==='debt') Store.addDebt(data); else if(type==='goal') Store.addGoal(data); else Store.addTx({...data, type}); modal.close(); app.navigate(type === 'debt' ? 'debts' : 'dashboard'); app.updateProfileUI(); };
     },
-
-    openAddMoney: (id) => {
-        document.getElementById('action-sheet').classList.add('hidden');
-        modal.overlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
-        setTimeout(() => modal.content.classList.remove('translate-y-20', 'scale-95'), 10);
-        setTimeout(() => modal.content.classList.add('translate-y-0', 'scale-100'), 10);
-        modal.title.innerHTML = '<div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm"><i class="fa-solid fa-plus"></i></div> Add Funds';
-        modal.form.innerHTML = `
-            <div class="py-6 text-center">
-                <label class="block text-xs font-extrabold text-slate-400 uppercase mb-4 tracking-widest">Amount to Save</label>
-                <div class="relative max-w-xs mx-auto">
-                    <span class="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-400">EGP</span>
-                    <input type="number" step="0.01" name="amount" class="w-full bg-slate-50 border-2 border-indigo-100 rounded-[1.5rem] py-6 pl-20 pr-6 text-4xl font-black text-slate-800 focus:border-indigo-500 focus:bg-white transition-all outline-none text-center shadow-sm" placeholder="0" required autofocus>
-                </div>
-            </div>
-        `;
-        modal.form.onsubmit = (e) => {
-            e.preventDefault();
-            Store.fundGoal(id, parseFloat(new FormData(modal.form).get('amount')));
-            modal.close();
-            app.render();
-        };
+    openPayDebt: (id, type) => {
+        modal.overlay.classList.remove('hidden'); setTimeout(() => { modal.overlay.classList.remove('opacity-0'); document.getElementById('modal-content').classList.remove('scale-95'); }, 10);
+        modal.title.innerText = type === 'borrowed' ? 'Pay Off Debt' : 'Collect Money';
+        modal.form.innerHTML = `<div class="py-4 text-center"><label class="block text-xs font-bold text-slate-400 uppercase mb-4">Amount</label><input type="number" step="0.01" name="amount" class="w-full bg-slate-50 border-b-2 border-slate-300 text-center text-4xl font-black text-slate-800 focus:outline-none focus:border-slate-900 pb-2 bg-transparent" placeholder="0" required autofocus></div>`;
+        modal.form.onsubmit = (e) => { e.preventDefault(); Store.payDebt(id, parseFloat(new FormData(modal.form).get('amount'))); modal.close(); app.navigate('debts'); app.updateProfileUI(); };
     },
-
-    close: () => {
-        modal.content.classList.add('translate-y-20', 'scale-95');
-        modal.content.classList.remove('translate-y-0', 'scale-100');
-        setTimeout(() => modal.overlay.classList.add('hidden', 'opacity-0', 'pointer-events-none'), 200);
-    }
+    close: () => { modal.overlay.classList.add('opacity-0'); document.getElementById('modal-content').classList.add('scale-95'); setTimeout(() => modal.overlay.classList.add('hidden'), 200); }
 };
 
 Auth.init();
