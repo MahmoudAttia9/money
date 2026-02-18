@@ -2,36 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Smart Money - Analytics & Debts</title>
-    
-    <!-- Tailwind CSS (Senior Frontend Choice) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Money Pro v6.5</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Font: Inter (Professional & Clean) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cairo:wght@400;600;700;900&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: { 
+                        sans: ['Outfit', 'sans-serif'],
+                        cairo: ['Cairo', 'sans-serif'],
+                        kufi: ['Aref Ruqaa', 'serif']
+                    },
                     colors: {
-                        dark: '#0f172a',
-                        primary: '#2563eb',
-                        success: '#10b981',
-                        danger: '#ef4444',
-                        warning: '#f59e0b'
+                        slate: { 850: '#151e2e', 900: '#0f172a' },
+                        primary: { 500: '#6366f1', 600: '#4f46e5' },
+                        ramadan: {
+                            dark: '#050a14',
+                            gold: '#FFD700',
+                            accent: '#FDB931'
+                        }
                     },
                     boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-                        'glow': '0 0 20px rgba(37, 99, 235, 0.3)',
+                        'glow': '0 0 20px rgba(99, 102, 241, 0.15)',
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
                     }
                 }
             }
@@ -39,203 +43,264 @@
     </script>
 
     <style>
-        body { background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
-        .no-scroll::-webkit-scrollbar { display: none; }
-        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
-        .safe-top { padding-top: env(safe-area-inset-top, 20px); }
+        body { background-color: #f8fafc; -webkit-tap-highlight-color: transparent; transition: background-color 0.5s ease; }
         
-        .glass {
-            background: rgba(255, 255, 255, 0.92);
+        /* Default Mode Animations */
+        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        }
+        
+        /* Active Filter Button */
+        .filter-btn-active {
+            background-color: #0f172a;
+            color: white;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
         }
 
-        .animate-enter { animation: enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* --- RAMADAN THEME STYLES --- */
+        body.ramadan-mode {
+            background-color: #050a14 !important;
+            background-image: radial-gradient(circle at 50% 0%, #1a2a47 0%, #050a14 70%);
+            color: #fff;
+        }
+        
+        body.ramadan-mode .glass-panel, body.ramadan-mode nav {
+            display: none !important; /* Hide default navs in Ramadan mode */
+        }
+
+        .ramadan-card {
+            background: rgba(20, 30, 48, 0.6);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(12px);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(45deg, #FFD700, #FDB931, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .ramadan-input {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px; color: #fff;
+            padding: 10px; width: 100%;
+        }
+        .ramadan-input:focus { outline: none; border-color: #FFD700; }
+
+        .prayer-toggle {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #aaa; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem;
+        }
+        .prayer-toggle.active {
+            background: linear-gradient(45deg, #FFD700, #FDB931);
+            color: #000; border-color: transparent; font-weight: bold;
+        }
+
+        .lantern-anim { animation: swing 3s ease-in-out infinite alternate; transform-origin: top center; }
+        @keyframes swing { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+        
+        .circle-progress-wrap { width: 140px; height: 140px; position: relative; margin: 0 auto; }
+        .circle-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .circle-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 8; }
+        .circle-val { fill: none; stroke: #FFD700; stroke-width: 8; stroke-dasharray: 440; stroke-dashoffset: 440; transition: stroke-dashoffset 1s ease; stroke-linecap: round; }
     </style>
 </head>
-<body class="text-slate-800 h-[100dvh] flex flex-col overflow-hidden selection:bg-blue-100 selection:text-blue-700">
+<body class="text-slate-800 h-screen overflow-hidden bg-slate-50 selection:bg-indigo-100 selection:text-indigo-700">
 
     <!-- LOGIN SCREEN -->
-    <div id="login-screen" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col justify-center p-6 animate-enter">
-        <div class="absolute top-[-10%] right-[-20%] w-[80%] h-[50%] bg-blue-600/20 rounded-full blur-[80px] pointer-events-none"></div>
+    <div id="login-screen" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 fade-in">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-indigo-600/20 rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[100px]"></div>
+        </div>
         
-        <div class="relative z-10 w-full max-w-sm mx-auto">
+        <div class="w-full max-w-sm bg-white/5 backdrop-blur-2xl rounded-[2.5rem] p-8 shadow-2xl relative z-10 border border-white/10">
             <div class="text-center mb-10">
-                <div class="w-20 h-20 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-glow transform rotate-3">
-                    <i class="fa-solid fa-chart-simple text-white text-3xl"></i>
+                <div class="w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-glow transform rotate-3 ring-4 ring-white/5">
+                    <i class="fa-solid fa-wallet text-white text-3xl"></i>
                 </div>
-                <h1 class="text-3xl font-black text-white tracking-tight">Smart Money</h1>
-                <p class="text-slate-400 text-sm mt-2 font-medium">Financial Control Center</p>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight">Smart Money <span class="text-indigo-400">Pro</span></h1>
+                <p class="text-slate-400 text-sm mt-2 font-light">Advanced Financial Intelligence</p>
             </div>
-            
-            <form id="login-form" class="space-y-4">
-                <div class="bg-white/5 border border-white/10 rounded-2xl p-1 flex items-center">
-                    <div class="w-12 h-12 flex items-center justify-center text-slate-400"><i class="fa-solid fa-phone"></i></div>
-                    <input type="tel" id="login-phone" class="bg-transparent w-full text-white font-bold outline-none placeholder:text-slate-600 h-12" placeholder="01xxxxxxxxx" required>
+            <form id="login-form" class="space-y-5">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Secure Identity</label>
+                    <div class="relative group">
+                        <i class="fa-solid fa-phone absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors"></i>
+                        <input type="tel" id="login-phone" class="w-full bg-slate-900/50 border border-slate-700 text-white text-lg rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent block pl-12 pr-4 py-4 outline-none font-mono transition-all placeholder:text-slate-600" placeholder="01xxxxxxxxx" required>
+                    </div>
                 </div>
-                
-                <div class="bg-white/5 border border-white/10 rounded-2xl p-1 flex items-center">
-                    <div class="w-12 h-12 flex items-center justify-center text-slate-400"><i class="fa-solid fa-lock"></i></div>
-                    <input type="password" id="login-pass" class="bg-transparent w-full text-white font-bold outline-none placeholder:text-slate-600 h-12" placeholder="Passcode" required>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Access Key</label>
+                    <div class="relative group">
+                        <i class="fa-solid fa-key absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors"></i>
+                        <input type="password" id="login-pass" class="w-full bg-slate-900/50 border border-slate-700 text-white text-lg rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent block pl-12 pr-4 py-4 outline-none font-mono transition-all placeholder:text-slate-600" placeholder="••••••••" required>
+                    </div>
                 </div>
-
-                <div id="login-error" class="hidden text-rose-400 text-xs font-bold text-center py-2 bg-rose-500/10 rounded-xl">Access Denied</div>
-
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-600/30 transition-all active:scale-[0.98] mt-4">
-                    Access Dashboard
+                <div id="login-error" class="text-rose-400 text-sm text-center font-medium hidden bg-rose-500/10 py-3 rounded-xl border border-rose-500/20">
+                    <i class="fa-solid fa-triangle-exclamation mr-2"></i> Access Denied
+                </div>
+                <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-500 font-bold rounded-2xl text-lg px-5 py-4 text-center shadow-lg shadow-indigo-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-3 mt-4 group">
+                    <span>Initialize Dashboard</span>
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                 </button>
             </form>
-            
-            <p class="text-center text-slate-600 text-[10px] font-bold mt-8 uppercase tracking-widest">Authorized for Mohamed Eliwa</p>
+        </div>
+        <div class="mt-8 text-center">
+            <p class="text-slate-500 text-xs font-medium">System v6.5.0</p>
+            <p class="text-slate-600 text-[10px] mt-1">Authorized for Mohamed Eliwa</p>
         </div>
     </div>
 
-    <!-- MAIN APP CONTAINER -->
-    <div id="app-container" class="hidden flex-1 flex flex-col h-full bg-[#f8fafc]">
+    <!-- MAIN APPLICATION -->
+    <div id="app-container" class="hidden flex h-full">
         
-        <!-- HEADER -->
-        <header class="glass fixed top-0 w-full z-30 safe-top">
-            <div class="px-5 py-3 flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-slate-200 overflow-hidden border border-slate-300 cursor-pointer" onclick="document.getElementById('avatar-upload').click()">
-                        <img id="header-avatar" src="" class="w-full h-full object-cover">
+        <!-- SIDEBAR (Desktop) -->
+        <aside class="w-80 bg-slate-900 hidden md:flex flex-col shadow-2xl z-20 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+            <div class="p-8 pb-6 relative z-10">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="relative group cursor-pointer" onclick="document.getElementById('avatar-upload').click()">
+                        <div class="w-14 h-14 rounded-full p-[2px] bg-gradient-to-tr from-indigo-500 to-purple-500">
+                            <img id="sidebar-avatar" src="" class="w-full h-full rounded-full border-2 border-slate-900 object-cover">
+                        </div>
+                        <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm">
+                            <i class="fa-solid fa-camera text-white text-sm"></i>
+                        </div>
                     </div>
                     <div>
-                        <h1 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Balance</h1>
-                        <p class="text-lg font-black text-slate-900 leading-none" id="header-balance">EGP 0</p>
+                        <h2 id="sidebar-name" class="text-white font-bold text-lg tracking-tight leading-tight"></h2>
+                        <span class="text-[10px] text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 font-bold tracking-wide">PRO LICENSE</span>
                     </div>
                 </div>
-                <button onclick="app.toggleActionSheet()" class="w-9 h-9 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform">
-                    <i class="fa-solid fa-plus text-sm"></i>
+                <button onclick="app.toggleActionSheet()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl font-bold flex items-center justify-center gap-2 mb-4 shadow-lg shadow-indigo-500/20 transition-all active:scale-95">
+                    <i class="fa-solid fa-plus-circle"></i> New Transaction
                 </button>
             </div>
-        </header>
+            <nav class="flex-1 px-4 space-y-2 overflow-y-auto no-scrollbar">
+                <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-2">Main Menu</p>
+                <button onclick="app.navigate('dashboard')" id="nav-d-dashboard" class="nav-item-d w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center gap-4 text-slate-400 hover:bg-white/5 hover:text-white group">
+                    <i class="fa-solid fa-chart-line w-5 text-center transition-colors"></i> <span class="font-medium tracking-wide">Dashboard</span>
+                </button>
+                <button onclick="app.navigate('analytics')" id="nav-d-analytics" class="nav-item-d w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center gap-4 text-slate-400 hover:bg-white/5 hover:text-white group">
+                    <i class="fa-solid fa-chart-pie w-5 text-center transition-colors"></i> <span class="font-medium tracking-wide">Analytics</span>
+                </button>
+            </nav>
+            <div class="p-6 border-t border-white/5">
+                <button onclick="location.reload()" class="w-full py-3.5 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 rounded-2xl text-sm font-bold transition-colors flex items-center justify-center gap-2 group">
+                    <i class="fa-solid fa-power-off group-hover:scale-110 transition-transform"></i> Terminate Session
+                </button>
+            </div>
+        </aside>
 
-        <!-- CONTENT VIEW -->
-        <main id="main-view" class="flex-1 overflow-y-auto no-scroll pt-20 pb-24 px-5 scroll-smooth animate-enter">
-            <!-- Dynamic Content -->
-        </main>
+        <!-- CONTENT AREA -->
+        <main class="flex-1 flex flex-col h-full relative w-full transition-colors duration-500">
+            
+            <!-- Mobile Header (Standard) -->
+            <div id="standard-header" class="md:hidden glass-panel px-5 py-4 flex justify-between items-center sticky top-0 z-20 border-b border-slate-200/50">
+                <div class="flex items-center gap-3" onclick="app.navigate('settings')">
+                    <div class="w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-indigo-500 to-purple-500">
+                        <img id="mobile-avatar" src="" class="w-full h-full rounded-full border-2 border-white object-cover">
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm text-slate-800 leading-none">Hello, Mohamed</h1>
+                        <span class="text-[10px] text-indigo-500 font-bold tracking-wide">PRO</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="app.toggleActionSheet()" class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-plus text-xs"></i></button>
+                </div>
+            </div>
 
-        <!-- BOTTOM NAV -->
-        <nav class="fixed bottom-0 w-full bg-white border-t border-slate-100 z-30 safe-bottom">
-            <div class="grid grid-cols-5 pt-2 pb-1">
-                <button onclick="app.navigate('dashboard')" id="nav-dashboard" class="nav-item flex flex-col items-center gap-1 p-2 text-slate-400">
-                    <i class="fa-solid fa-house text-xl mb-0.5"></i>
-                    <span class="text-[10px] font-bold">Home</span>
+            <!-- View Container -->
+            <div id="main-view" class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 pb-32 md:pb-8 scroll-smooth relative">
+                <!-- Dynamic Content -->
+            </div>
+
+            <!-- Mobile Bottom Nav (Standard) -->
+            <nav id="standard-nav" class="md:hidden fixed bottom-6 left-4 right-4 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-[2rem] px-6 py-3 z-30 flex justify-between items-center shadow-2xl shadow-slate-900/30">
+                <button onclick="app.navigate('dashboard')" id="nav-m-dashboard" class="nav-item-m flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90">
+                    <i class="fa-solid fa-house text-xl"></i>
+                </button>
+                <button onclick="app.navigate('analytics')" id="nav-m-analytics" class="nav-item-m flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90">
+                    <i class="fa-solid fa-chart-pie text-xl"></i>
                 </button>
                 
-                <button onclick="app.navigate('analytics')" id="nav-analytics" class="nav-item flex flex-col items-center gap-1 p-2 text-slate-400">
-                    <i class="fa-solid fa-chart-pie text-xl mb-0.5"></i>
-                    <span class="text-[10px] font-bold">Analytics</span>
+                <button onclick="app.toggleActionSheet()" class="w-14 h-14 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-indigo-500/40 -mt-8 border-4 border-[#f8fafc] active:scale-90 transition-transform">
+                    <i class="fa-solid fa-plus text-xl"></i>
                 </button>
 
-                <div class="flex justify-center -mt-8 pointer-events-none">
-                    <div class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-600/40 border-[4px] border-[#f8fafc]">
-                        <i class="fa-solid fa-wallet text-xl"></i>
-                    </div>
-                </div>
-
-                <button onclick="app.navigate('debts')" id="nav-debts" class="nav-item flex flex-col items-center gap-1 p-2 text-slate-400">
-                    <i class="fa-solid fa-hand-holding-dollar text-xl mb-0.5"></i>
-                    <span class="text-[10px] font-bold">Debts</span>
+                <button onclick="app.navigate('goals')" id="nav-m-goals" class="nav-item-m flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90">
+                    <i class="fa-solid fa-bullseye text-xl"></i>
                 </button>
-
-                <button onclick="app.navigate('settings')" id="nav-settings" class="nav-item flex flex-col items-center gap-1 p-2 text-slate-400">
-                    <i class="fa-solid fa-gear text-xl mb-0.5"></i>
-                    <span class="text-[10px] font-bold">Settings</span>
+                <button onclick="app.navigate('settings')" id="nav-m-settings" class="nav-item-m flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90">
+                    <i class="fa-solid fa-user text-xl"></i>
                 </button>
-            </div>
-        </nav>
+            </nav>
 
+        </main>
     </div>
 
-    <!-- ACTION SHEET -->
-    <div id="action-sheet" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden flex items-end justify-center transition-opacity opacity-0" onclick="app.toggleActionSheet()">
-        <div class="bg-white w-full rounded-t-[2rem] p-6 pb-safe-bottom transform translate-y-full transition-transform duration-300 shadow-2xl" id="action-sheet-content" onclick="event.stopPropagation()">
-            <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-6"></div>
-            <h3 class="text-center font-bold text-slate-800 mb-6">Quick Action</h3>
-            <div class="grid grid-cols-4 gap-4">
-                <button onclick="modal.open('income')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
-                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center border border-emerald-100"><i class="fa-solid fa-arrow-down text-emerald-600 text-xl"></i></div>
-                    <span class="text-[10px] font-bold text-slate-500 uppercase">Income</span>
-                </button>
-                <button onclick="modal.open('expense')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
-                    <div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center border border-rose-100"><i class="fa-solid fa-arrow-up text-rose-600 text-xl"></i></div>
-                    <span class="text-[10px] font-bold text-slate-500 uppercase">Expense</span>
-                </button>
-                <button onclick="modal.open('debt')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
-                    <div class="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center border border-orange-100"><i class="fa-solid fa-handshake text-orange-600 text-xl"></i></div>
-                    <span class="text-[10px] font-bold text-slate-500 uppercase">Debt</span>
-                </button>
-                <button onclick="modal.open('goal')" class="flex flex-col items-center gap-2 group active:scale-95 transition-transform">
-                    <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100"><i class="fa-solid fa-bullseye text-blue-600 text-xl"></i></div>
-                    <span class="text-[10px] font-bold text-slate-500 uppercase">Goal</span>
-                </button>
+    <!-- ADD ACTION OVERLAY -->
+    <div id="action-sheet" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center fade-in" onclick="app.toggleActionSheet()">
+        <div class="flex gap-6 md:gap-12 slide-up" onclick="event.stopPropagation()">
+            <button onclick="modal.open('income')" class="group flex flex-col items-center gap-4 transition-transform hover:-translate-y-2">
+                <div class="w-20 h-20 md:w-24 md:h-24 bg-white rounded-3xl flex items-center justify-center shadow-2xl shadow-emerald-500/20 border border-emerald-100"><i class="fa-solid fa-arrow-down text-3xl md:text-4xl text-emerald-500"></i></div>
+                <span class="text-white font-bold text-sm bg-slate-900/50 px-4 py-1.5 rounded-full">Income</span>
+            </button>
+            <button onclick="modal.open('expense')" class="group flex flex-col items-center gap-4 transition-transform hover:-translate-y-2">
+                <div class="w-20 h-20 md:w-24 md:h-24 bg-white rounded-3xl flex items-center justify-center shadow-2xl shadow-rose-500/20 border border-rose-100"><i class="fa-solid fa-arrow-up text-3xl md:text-4xl text-rose-500"></i></div>
+                <span class="text-white font-bold text-sm bg-slate-900/50 px-4 py-1.5 rounded-full">Expense</span>
+            </button>
+            <button onclick="modal.open('goal')" class="group flex flex-col items-center gap-4 transition-transform hover:-translate-y-2">
+                <div class="w-20 h-20 md:w-24 md:h-24 bg-white rounded-3xl flex items-center justify-center shadow-2xl shadow-indigo-500/20 border border-indigo-100"><i class="fa-solid fa-piggy-bank text-3xl md:text-4xl text-indigo-500"></i></div>
+                <span class="text-white font-bold text-sm bg-slate-900/50 px-4 py-1.5 rounded-full">Save</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN MODAL -->
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden transform scale-95 transition-all duration-300" id="modal-content">
+            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-extrabold text-xl text-slate-800 flex items-center gap-3" id="modal-title"></h3>
+                <button onclick="modal.close()" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors shadow-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-8 max-h-[70vh] overflow-y-auto"><form id="dynamic-form" class="space-y-6"></form></div>
+            <div class="px-8 py-6 bg-slate-50 border-t border-slate-100">
+                <button form="dynamic-form" type="submit" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl flex items-center justify-center gap-2 text-lg"><i class="fa-solid fa-check-circle"></i> Confirm Entry</button>
             </div>
         </div>
     </div>
 
-    <!-- UNIVERSAL MODAL -->
-    <div id="modal-overlay" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-200">
-        <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden transform scale-95 transition-transform duration-200" id="modal-content">
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 class="font-bold text-lg text-slate-800" id="modal-title">Title</h3>
-                <button onclick="modal.close()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="p-6">
-                <form id="dynamic-form" class="space-y-5"></form>
-            </div>
-            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100">
-                <button form="dynamic-form" type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-all">Save Record</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Hidden Input -->
     <input type="file" id="avatar-upload" hidden accept="image/*" onchange="app.handleImageUpload(this)">
 
 <script>
-// --- CONFIG & STORE ---
-const CONFIG = { phone: '01281507604', pass: '11223344', defaultName: 'Mohamed Eliwa' };
-
-const Store = {
-    get: (k) => JSON.parse(localStorage.getItem(k) || '[]'),
-    set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
-    getUser: () => {
-        const u = JSON.parse(localStorage.getItem('userProfile') || '{}');
-        return { name: u.name || CONFIG.defaultName, avatar: u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name || CONFIG.defaultName)}&background=0f172a&color=fff&size=256` };
-    },
-    updateUser: (data) => {
-        const current = Store.getUser();
-        localStorage.setItem('userProfile', JSON.stringify({ ...current, ...data }));
-        app.updateProfileUI();
-    },
-    // Transactions
-    addTx: (tx) => { const d = Store.get('transactions'); d.push({ ...tx, id: Date.now(), amount: parseFloat(tx.amount) }); Store.set('transactions', d); },
-    deleteTx: (id) => Store.set('transactions', Store.get('transactions').filter(t => t.id != id)),
-    // Debts
-    addDebt: (d) => { const data = Store.get('debts'); data.push({ ...d, id: Date.now(), totalAmount: parseFloat(d.totalAmount), paidAmount: 0 }); Store.set('debts', data); },
-    payDebt: (id, amt) => {
-        const debts = Store.get('debts'); const idx = debts.findIndex(d => d.id == id);
-        if(idx > -1) {
-            debts[idx].paidAmount += amt; Store.set('debts', debts);
-            const isBorrowed = debts[idx].type === 'borrowed';
-            Store.addTx({ title: `Debt: ${debts[idx].title}`, amount: amt, type: isBorrowed ? 'expense' : 'income', category: 'Debt Repayment', date: new Date().toISOString().split('T')[0] });
-        }
-    },
-    deleteDebt: (id) => Store.set('debts', Store.get('debts').filter(d => d.id != id)),
-    // Goals
-    addGoal: (g) => { const data = Store.get('goals'); data.push({ ...g, id: Date.now(), target: parseFloat(g.target), saved: 0 }); Store.set('goals', data); },
-    
-    // Logic
-    getBalance: () => {
-        const txs = Store.get('transactions');
-        const income = txs.filter(t => t.type === 'income').reduce((a,b) => a + b.amount, 0);
-        const expense = txs.filter(t => t.type === 'expense').reduce((a,b) => a + b.amount, 0);
-        return { income, expense, total: income - expense };
-    }
-};
+// --- CONFIGURATION ---
+const CONFIG = { phone: '01281507604', pass: '11223344', defaultName: 'MOHAMED ELIWA' };
 
 // --- AUTH ---
 const Auth = {
@@ -252,15 +317,151 @@ const Auth = {
     success: () => {
         const screen = document.getElementById('login-screen');
         screen.style.opacity = '0';
-        setTimeout(() => { screen.classList.add('hidden'); document.getElementById('app-container').classList.remove('hidden'); app.init(); }, 400);
+        setTimeout(() => { screen.classList.add('hidden'); document.getElementById('app-container').classList.remove('hidden'); app.init(); }, 500);
     }
 };
 
-// --- APP ---
+// --- DATA STORE ---
+const Store = {
+    get: (k) => JSON.parse(localStorage.getItem(k) || '[]'),
+    set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+    getUser: () => { const u = JSON.parse(localStorage.getItem('userProfile') || '{}'); return { name: u.name || CONFIG.defaultName, avatar: u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name || CONFIG.defaultName)}&background=4f46e5&color=fff&size=256` }; },
+    updateUser: (data) => { const current = Store.getUser(); localStorage.setItem('userProfile', JSON.stringify({ ...current, ...data })); app.updateProfileUI(); },
+    addTx: (tx) => { const data = Store.get('transactions'); data.push({ ...tx, id: Date.now(), amount: parseFloat(tx.amount) }); Store.set('transactions', data); },
+    deleteTx: (id) => Store.set('transactions', Store.get('transactions').filter(t => t.id != id)),
+    addGoal: (g) => { const data = Store.get('goals'); data.push({ ...g, id: Date.now(), targetAmount: parseFloat(g.targetAmount), savedAmount: parseFloat(g.savedAmount || 0) }); Store.set('goals', data); },
+    fundGoal: (id, amt) => { const goals = Store.get('goals'); const idx = goals.findIndex(g => g.id == id); if(idx > -1) { goals[idx].savedAmount += amt; Store.set('goals', goals); Store.addTx({ title: `Savings: ${goals[idx].title}`, amount: amt, type: 'expense', category: 'Savings', date: new Date().toISOString().split('T')[0] }); } },
+    deleteGoal: (id) => Store.set('goals', Store.get('goals').filter(g => g.id != id)),
+    reset: () => { if(confirm('WARNING: This will wipe all data. Continue?')) { localStorage.clear(); location.reload(); } },
+    export: () => { const blob = new Blob([JSON.stringify(localStorage)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup-${new Date().toISOString().split('T')[0]}.json`; a.click(); }
+};
+
+// --- RAMADAN LOGIC ---
+const Ramadan = {
+    config: {
+        fajr: { label: 'الفجر', fard: true, sunnah: true }, duha: { label: 'الضحى', fard: false, sunnah: true },
+        dhuhr: { label: 'الظهر', fard: true, sunnah: true }, asr: { label: 'العصر', fard: true, sunnah: true },
+        maghrib: { label: 'المغرب', fard: true, sunnah: true }, isha: { label: 'العشاء', fard: true, sunnah: true }
+    },
+    currentDate: new Date().toISOString().split('T')[0],
+    
+    init: () => {
+        Ramadan.renderPrayers();
+        Ramadan.updateUI();
+    },
+    changeDate: (d) => {
+        const dt = new Date(Ramadan.currentDate); dt.setDate(dt.getDate() + d);
+        Ramadan.currentDate = dt.toISOString().split('T')[0];
+        document.getElementById('currentDateDisplay').textContent = dt.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
+        Ramadan.updateUI();
+    },
+    getData: () => JSON.parse(localStorage.getItem('ramadanData') || '{}'),
+    saveData: (newData) => {
+        const allData = Ramadan.getData();
+        allData[Ramadan.currentDate] = newData;
+        localStorage.setItem('ramadanData', JSON.stringify(allData));
+        Ramadan.updateStats();
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    },
+    renderPrayers: () => {
+        const c = document.getElementById('prayersList'); if(!c) return; c.innerHTML = '';
+        Object.keys(Ramadan.config).forEach(k => {
+            const p = Ramadan.config[k];
+            let btns = '<div class="flex gap-2">';
+            if(p.fard) btns += `<button id="${k}-fard" class="prayer-toggle" onclick="this.classList.toggle('active')">فرض</button>`;
+            else btns += `<span class="text-gray-500 text-xs self-center ml-2">سنة</span>`;
+            if(p.sunnah) btns += `<button id="${k}-sunnah" class="prayer-toggle border border-amber-500/30 text-amber-500/80" onclick="this.classList.toggle('active')">سنة</button>`;
+            btns += '</div>';
+            c.innerHTML += `<div class="flex justify-between items-center py-3 border-b border-white/5"><span class="text-white font-cairo ${k==='duha'?'text-amber-400':''}">${p.label}</span>${btns}</div>`;
+        });
+    },
+    updateUI: () => {
+        const day = Ramadan.getData()[Ramadan.currentDate] || { prayers: {}, quran: 0, work: 0, study: 0, taraweeh: false, azkar: false, gym: false };
+        Object.keys(Ramadan.config).forEach(k => {
+            const p = Ramadan.config[k];
+            const s = day.prayers[k] || {};
+            if(p.fard) { const el = document.getElementById(`${k}-fard`); if(el) s.fard ? el.classList.add('active') : el.classList.remove('active'); }
+            if(p.sunnah) { const el = document.getElementById(`${k}-sunnah`); if(el) s.sunnah ? el.classList.add('active') : el.classList.remove('active'); }
+        });
+        ['taraweeh', 'azkar', 'gym'].forEach(id => {
+            const el = document.getElementById(id + 'Card');
+            if(el) day[id] ? el.classList.add('border-emerald-500', 'bg-emerald-900/20') : el.classList.remove('border-emerald-500', 'bg-emerald-900/20');
+        });
+        
+        if(document.getElementById('quranPages')) document.getElementById('quranPages').value = day.quran || '';
+        if(document.getElementById('workHours')) document.getElementById('workHours').value = day.work || '';
+        if(document.getElementById('studyHours')) document.getElementById('studyHours').value = day.study || '';
+        
+        Ramadan.updateStats();
+    },
+    toggleHabit: (id) => {
+        const el = document.getElementById(id + 'Card');
+        el.classList.toggle('border-emerald-500'); el.classList.toggle('bg-emerald-900/20');
+    },
+    saveDay: () => {
+        const prayers = {};
+        Object.keys(Ramadan.config).forEach(k => {
+            const p = Ramadan.config[k];
+            prayers[k] = {
+                fard: p.fard ? document.getElementById(`${k}-fard`).classList.contains('active') : false,
+                sunnah: p.sunnah ? document.getElementById(`${k}-sunnah`).classList.contains('active') : false
+            };
+        });
+        Ramadan.saveData({
+            prayers,
+            quran: parseInt(document.getElementById('quranPages').value) || 0,
+            work: parseFloat(document.getElementById('workHours').value) || 0,
+            study: parseFloat(document.getElementById('studyHours').value) || 0,
+            taraweeh: document.getElementById('taraweehCard').classList.contains('border-emerald-500'),
+            azkar: document.getElementById('azkarCard').classList.contains('border-emerald-500'),
+            gym: document.getElementById('gymCard').classList.contains('border-emerald-500')
+        });
+    },
+    updateStats: () => {
+        let totalQ = 0, totalWork = 0, totalStudy = 0, totalSunnah = 0; 
+        let daysCount = 0;
+        const data = Ramadan.getData();
+        const currentDayData = data[Ramadan.currentDate] || {};
+        
+        // Calculate Day Stats for Analytics Panel
+        let fardToday = 0;
+        if(currentDayData.prayers) {
+            Object.values(currentDayData.prayers).forEach(p => { if(p.fard) fardToday++; });
+        }
+        const fardPct = Math.round((fardToday / 5) * 100);
+        if(document.getElementById('fardPct')) document.getElementById('fardPct').innerText = fardPct + '%';
+        if(document.getElementById('totalHours')) document.getElementById('totalHours').innerText = ((currentDayData.work || 0) + (currentDayData.study || 0)) + 'h';
+
+        // Global Stats
+        Object.values(data).forEach(d => {
+            totalQ += (d.quran || 0);
+            totalWork += (d.work || 0);
+            totalStudy += (d.study || 0);
+            if(d.prayers) {
+                Object.values(d.prayers).forEach(p => { if(p.sunnah) totalSunnah++; });
+            }
+            daysCount++;
+        });
+
+        if(document.getElementById('sunnahCount')) document.getElementById('sunnahCount').innerText = totalSunnah;
+
+        const KHATMA = 604;
+        let pct = Math.min(100, (totalQ % KHATMA / KHATMA) * 100);
+        let khatmaNum = Math.floor(totalQ / KHATMA) + 1;
+        
+        const circle = document.getElementById('khatmaCircle');
+        if(circle) circle.style.strokeDashoffset = 440 - (440 * pct) / 100;
+        const pctText = document.getElementById('khatmaPct');
+        if(pctText) pctText.innerText = Math.round(pct) + '%';
+        const lbl = document.getElementById('khatmaLabel');
+        if(lbl) lbl.innerText = 'الختمة ' + khatmaNum;
+    }
+};
+
+// --- APP CONTROLLER ---
 const app = {
     view: 'dashboard',
-    filterMode: 'monthly',
-    filterValue: new Date().toISOString().slice(0, 7),
+    filterMode: 'monthly', filterValue: new Date().toISOString().slice(0, 7),
 
     init: () => {
         app.updateProfileUI();
@@ -269,13 +470,13 @@ const app = {
 
     updateProfileUI: () => {
         const user = Store.getUser();
-        const balance = Store.getBalance().total;
-        document.getElementById('header-avatar').src = user.avatar;
-        document.getElementById('header-balance').innerText = `EGP ${balance.toLocaleString()}`;
+        document.getElementById('sidebar-name').innerText = user.name;
+        document.getElementById('sidebar-avatar').src = user.avatar;
+        document.getElementById('mobile-avatar').src = user.avatar;
     },
 
     handleImageUpload: (input) => {
-        if(input.files[0]) {
+        if(input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = (e) => Store.updateUser({ avatar: e.target.result });
             reader.readAsDataURL(input.files[0]);
@@ -284,258 +485,613 @@ const app = {
 
     navigate: (v) => {
         app.view = v;
-        document.querySelectorAll('.nav-item').forEach(el => { el.classList.remove('text-blue-600'); el.classList.add('text-slate-400'); });
-        const active = document.getElementById(`nav-${v}`);
-        if(active) { active.classList.remove('text-slate-400'); active.classList.add('text-blue-600'); }
-        
-        const main = document.getElementById('main-view');
-        main.innerHTML = '';
-        setTimeout(() => {
-            if(v === 'dashboard') main.innerHTML = views.dashboard();
-            else if(v === 'analytics') main.innerHTML = views.analytics();
-            else if(v === 'debts') main.innerHTML = views.debts();
-            else if(v === 'settings') main.innerHTML = views.settings();
-            
-            if(v === 'analytics') app.drawCharts();
-        }, 10);
-    },
+        const body = document.body;
+        const stdNav = document.getElementById('standard-nav');
+        const stdHeader = document.getElementById('standard-header');
 
-    toggleActionSheet: () => {
-        const el = document.getElementById('action-sheet');
-        const content = document.getElementById('action-sheet-content');
-        if(el.classList.contains('hidden')) {
-            el.classList.remove('hidden');
-            setTimeout(() => { el.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
+        // Handle Ramadan Mode
+        if (v === 'ramadan') {
+            body.classList.add('ramadan-mode');
+            if(stdNav) stdNav.classList.add('hidden');
+            if(stdHeader) stdHeader.classList.add('hidden');
         } else {
-            content.classList.add('translate-y-full'); el.classList.add('opacity-0');
-            setTimeout(() => el.classList.add('hidden'), 300);
+            body.classList.remove('ramadan-mode');
+            if(stdNav) stdNav.classList.remove('hidden');
+            if(stdHeader) stdHeader.classList.remove('hidden');
+        }
+
+        // Desktop Styles (Reset)
+        document.querySelectorAll('.nav-item-d').forEach(el => el.className = "nav-item-d w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center gap-4 text-slate-400 hover:bg-white/5 hover:text-white group");
+        const dBtn = document.getElementById(`nav-d-${v}`);
+        if(dBtn) dBtn.className = "nav-item-d w-full text-left px-5 py-4 rounded-2xl transition-all flex items-center gap-4 bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 group";
+
+        // Mobile Styles (Reset)
+        document.querySelectorAll('.nav-item-m').forEach(el => { el.classList.remove('text-indigo-400', 'text-slate-400'); el.classList.add('text-slate-400'); });
+        const mBtn = document.getElementById(`nav-m-${v}`);
+        if(mBtn) { mBtn.classList.remove('text-slate-400'); mBtn.classList.add('text-indigo-400'); }
+
+        app.render();
+        
+        // Init Ramadan Logic if needed
+        if (v === 'ramadan') {
+            setTimeout(() => Ramadan.init(), 100);
         }
     },
 
-    setFilterMode: (m) => { app.filterMode = m; const now=new Date(); app.filterValue = m==='daily'?now.toISOString().slice(0,10) : m==='monthly'?now.toISOString().slice(0,7) : now.getFullYear().toString(); app.navigate('analytics'); },
-    setFilterValue: (v) => { if(v) { app.filterValue = v; app.navigate('analytics'); } },
-
-    getAnalyticsData: () => {
-        const txs = Store.get('transactions');
-        let filteredTxs = [];
-        if(app.filterMode === 'daily') filteredTxs = txs.filter(t => t.date === app.filterValue);
-        else if(app.filterMode === 'monthly') filteredTxs = txs.filter(t => t.date.startsWith(app.filterValue));
-        else filteredTxs = txs.filter(t => t.date.startsWith(app.filterValue));
-
-        const income = filteredTxs.filter(t => t.type === 'income').reduce((a,b)=>a+b.amount,0);
-        const expense = filteredTxs.filter(t => t.type === 'expense').reduce((a,b)=>a+b.amount,0);
-        const cats = {}; filteredTxs.filter(t=>t.type==='expense').forEach(t => cats[t.category] = (cats[t.category]||0)+t.amount);
-        
-        return { income, expense, cats };
+    toggleActionSheet: () => {
+        const sheet = document.getElementById('action-sheet');
+        sheet.classList.toggle('hidden');
     },
 
-    drawCharts: () => {
-        const data = app.getAnalyticsData();
-        const ctx = document.getElementById('chartCats');
-        if(!ctx) return;
-        if(Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
-        
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(data.cats).length ? Object.keys(data.cats) : ['No Data'],
-                datasets: [{
-                    data: Object.values(data.cats).length ? Object.values(data.cats) : [1],
-                    backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#6366f1'],
-                    borderWidth: 0,
-                    hoverOffset: 10
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: {family: 'Inter', size: 11} } } } }
+    setFilterMode: (mode) => {
+        app.filterMode = mode;
+        const now = new Date();
+        if(mode === 'daily') app.filterValue = now.toISOString().slice(0, 10);
+        else if(mode === 'monthly') app.filterValue = now.toISOString().slice(0, 7);
+        else if(mode === 'yearly') app.filterValue = now.getFullYear().toString();
+        app.render();
+    },
+
+    setFilterValue: (val) => {
+        if(!val) return;
+        app.filterValue = val;
+        app.render();
+    },
+
+    getAnalytics: () => {
+        const txs = Store.get('transactions');
+        let filteredTxs = [], label = '', trendLabels = [], trendData = [], prevExpense = 0;
+
+        if(app.filterMode === 'daily') {
+            filteredTxs = txs.filter(t => t.date === app.filterValue);
+            label = new Date(app.filterValue).toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' });
+            const prevDate = new Date(app.filterValue); prevDate.setDate(prevDate.getDate() - 1);
+            prevExpense = txs.filter(t => t.date === prevDate.toISOString().slice(0, 10) && t.type === 'expense').reduce((a,b)=>a+b.amount,0);
+        } else if(app.filterMode === 'monthly') {
+            filteredTxs = txs.filter(t => t.date.startsWith(app.filterValue));
+            const [y, m] = app.filterValue.split('-');
+            label = new Date(y, m-1).toLocaleString('default', { month: 'long', year: 'numeric' });
+            const daysInMonth = new Date(y, m, 0).getDate(); const daysMap = {};
+            filteredTxs.filter(t=>t.type==='expense').forEach(t => { const d = parseInt(t.date.split('-')[2]); daysMap[d] = (daysMap[d]||0) + t.amount; });
+            trendLabels = Object.keys(daysMap).sort((a,b)=>a-b); trendData = trendLabels.map(d => daysMap[d]);
+            const prevD = new Date(y, m-2);
+            prevExpense = txs.filter(t => t.date.startsWith(prevD.toISOString().slice(0, 7)) && t.type === 'expense').reduce((a,b)=>a+b.amount,0);
+        } else if(app.filterMode === 'yearly') {
+            filteredTxs = txs.filter(t => t.date.startsWith(app.filterValue));
+            label = app.filterValue;
+            const monthsMap = {};
+            filteredTxs.filter(t=>t.type==='expense').forEach(t => { const m = parseInt(t.date.split('-')[1]); monthsMap[m] = (monthsMap[m]||0) + t.amount; });
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            trendLabels = Object.keys(monthsMap).sort((a,b)=>a-b).map(m => monthNames[m-1]); trendData = Object.keys(monthsMap).sort((a,b)=>a-b).map(m => monthsMap[m]);
+            const prevY = parseInt(app.filterValue) - 1;
+            prevExpense = txs.filter(t => t.date.startsWith(prevY.toString()) && t.type === 'expense').reduce((a,b)=>a+b.amount,0);
+        }
+
+        const income = filteredTxs.filter(t => t.type === 'income').reduce((a, b) => a + b.amount, 0);
+        const expense = filteredTxs.filter(t => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
+        const net = income - expense;
+        const savingsRate = income > 0 ? Math.round((net / income) * 100) : 0;
+        const healthScore = Math.min(100, Math.max(0, savingsRate + 30));
+
+        const cats = {}; let topCat = { name: 'None', val: 0 };
+        filteredTxs.filter(t => t.type === 'expense').forEach(t => {
+            cats[t.category] = (cats[t.category] || 0) + t.amount;
+            if(cats[t.category] > topCat.val) topCat = { name: t.category, val: cats[t.category] };
         });
+
+        let maxDay = { label: '-', val: 0 };
+        if(app.filterMode !== 'daily') {
+            const dateMap = {};
+            filteredTxs.filter(t => t.type === 'expense').forEach(t => {
+                dateMap[t.date] = (dateMap[t.date] || 0) + t.amount;
+                if(dateMap[t.date] > maxDay.val) maxDay = { label: t.date, val: dateMap[t.date] };
+            });
+        }
+
+        const historyMap = {};
+        txs.forEach(t => {
+            const k = t.date.slice(0, 7);
+            if(!historyMap[k]) historyMap[k] = { income: 0, expense: 0 };
+            if(t.type === 'income') historyMap[k].income += t.amount; else historyMap[k].expense += t.amount;
+        });
+        const history = Object.entries(historyMap).map(([k, v]) => ({ month: k, ...v, net: v.income - v.expense })).sort((a,b) => b.month.localeCompare(a.month));
+
+        return { txs: filteredTxs, income, expense, net, savingsRate, healthScore, prevExpense, maxDay, topCat, label, history, trendLabels, trendData };
+    },
+
+    render: () => {
+        const data = app.getAnalytics();
+        const main = document.getElementById('main-view');
+        if(document.getElementById('sidebar-health')) document.getElementById('sidebar-health').innerText = data.healthScore;
+
+        let html = '';
+        if(app.view === 'dashboard') html = views.dashboard(data);
+        else if(app.view === 'transactions') html = views.transactions(data);
+        else if(app.view === 'goals') html = views.goals();
+        else if(app.view === 'analytics') html = views.analytics(data);
+        else if(app.view === 'settings') html = views.settings();
+        else if(app.view === 'ramadan') html = views.ramadan();
+
+        main.innerHTML = `<div class="fade-in w-full h-full">${html}</div>`;
+        if(app.view === 'dashboard' || app.view === 'analytics') setTimeout(() => app.drawCharts(data), 50);
+    },
+
+    drawCharts: (data) => {
+        const colors = { indigo: '#6366f1', purple: '#8b5cf6', emerald: '#10b981', rose: '#f43f5e', orange: '#f97316', sky: '#0ea5e9', slate: '#cbd5e1' };
+        if(!document.getElementById('chartCategories')) return;
+
+        const ctxCat = document.getElementById('chartCategories');
+        if(ctxCat) {
+            if(Chart.getChart(ctxCat)) Chart.getChart(ctxCat).destroy();
+            const cats = {}; data.txs.filter(t => t.type === 'expense').forEach(t => cats[t.category] = (cats[t.category]||0) + t.amount);
+            const hasData = Object.keys(cats).length > 0;
+            new Chart(ctxCat, {
+                type: 'doughnut',
+                data: {
+                    labels: hasData ? Object.keys(cats) : ['No Data'],
+                    datasets: [{ data: hasData ? Object.values(cats) : [1], backgroundColor: hasData ? [colors.rose, colors.orange, colors.purple, colors.emerald, colors.sky, '#eab308'] : [colors.slate], borderWidth: 0, hoverOffset: 10 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { usePointStyle: true, font: {family: 'Outfit'} } }, tooltip: { enabled: hasData } } }
+            });
+        }
+
+        const ctxTrend = document.getElementById('chartTrend');
+        if(ctxTrend && app.filterMode !== 'daily' && data.trendData.length > 0) {
+            if(Chart.getChart(ctxTrend)) Chart.getChart(ctxTrend).destroy();
+            const gradient = ctxTrend.getContext('2d').createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)'); gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+            new Chart(ctxTrend, {
+                type: 'line',
+                data: { labels: data.trendLabels, datasets: [{ label: 'Spend', data: data.trendData, borderColor: colors.indigo, backgroundColor: gradient, fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderColor: colors.indigo, pointBorderWidth: 2 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: {display: false} }, y: { display: false } } }
+            });
+        }
+
+        const ctxBar = document.getElementById('chartBar');
+        if(ctxBar) {
+            if(Chart.getChart(ctxBar)) Chart.getChart(ctxBar).destroy();
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: { labels: ['In', 'Out'], datasets: [{ data: [data.income, data.expense], backgroundColor: [colors.emerald, colors.rose], borderRadius: 10, barThickness: 40 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false, beginAtZero: true }, x: { grid: { display: false } } } }
+            });
+        }
     }
 };
 
 // --- VIEWS ---
 const views = {
-    dashboard: () => {
-        const balance = Store.getBalance();
-        const txs = Store.get('transactions').slice(-5).reverse();
-        return `
-        <div class="space-y-6">
-            <div class="bg-slate-900 rounded-[2rem] p-6 text-white shadow-lg relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-40 h-40 bg-blue-500 rounded-full blur-[60px] opacity-20 pointer-events-none"></div>
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Available</p>
-                <h2 class="text-4xl font-black mb-6">EGP ${balance.total.toLocaleString()}</h2>
-                <div class="flex gap-4">
-                    <div class="flex-1 bg-white/10 rounded-xl p-3 border border-white/5">
-                        <div class="flex items-center gap-2 mb-1"><div class="w-2 h-2 rounded-full bg-emerald-400"></div><span class="text-[10px] text-slate-300 font-bold uppercase">Income</span></div>
-                        <p class="font-bold text-lg">${balance.income.toLocaleString()}</p>
+    ramadan: () => `
+        <div class="h-full flex flex-col font-cairo text-right" dir="rtl">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6 pt-4">
+                <button onclick="app.navigate('dashboard')" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white backdrop-blur-sm"><i class="fa-solid fa-arrow-right"></i></button>
+                <h2 class="text-2xl font-bold gold-gradient-text font-kufi">رفيق رمضان</h2>
+                <div class="w-10"></div>
+            </div>
+
+            <!-- Lantern Decoration -->
+            <div class="absolute top-0 left-10 pointer-events-none lantern-anim">
+                <div class="w-1 h-20 bg-amber-500/50 mx-auto"></div>
+                <i class="fa-solid fa-lightbulb text-4xl text-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]"></i>
+            </div>
+
+            <!-- Date Nav -->
+            <div class="flex items-center justify-between bg-white/5 rounded-full p-2 mb-6 backdrop-blur-md border border-white/10">
+                <button class="text-amber-400 p-2" onclick="Ramadan.changeDate(-1)"><i class="fa-solid fa-chevron-right"></i></button>
+                <span class="text-white font-bold" id="currentDateDisplay">${new Date(Ramadan.currentDate).toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                <button class="text-amber-400 p-2" onclick="Ramadan.changeDate(1)"><i class="fa-solid fa-chevron-left"></i></button>
+            </div>
+
+            <!-- Analytics Summary -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div class="ramadan-card mb-0 p-3 text-center">
+                    <span class="text-xs text-gray-400">التزام الصلاة</span>
+                    <h3 class="text-lg font-bold text-emerald-400" id="fardPct">0%</h3>
+                </div>
+                <div class="ramadan-card mb-0 p-3 text-center">
+                    <span class="text-xs text-gray-400">إنجاز السنن</span>
+                    <h3 class="text-lg font-bold text-amber-400" id="sunnahCount">0</h3>
+                </div>
+                <div class="ramadan-card mb-0 p-3 text-center">
+                    <span class="text-xs text-gray-400">ساعات العمل</span>
+                    <h3 class="text-lg font-bold text-blue-400" id="totalHours">0h</h3>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-24">
+                <!-- Prayers -->
+                <div class="ramadan-card">
+                    <div class="flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+                        <i class="fa-solid fa-mosque text-amber-400"></i>
+                        <span class="font-bold text-white">الصلوات</span>
                     </div>
-                    <div class="flex-1 bg-white/10 rounded-xl p-3 border border-white/5">
-                        <div class="flex items-center gap-2 mb-1"><div class="w-2 h-2 rounded-full bg-rose-400"></div><span class="text-[10px] text-slate-300 font-bold uppercase">Expense</span></div>
-                        <p class="font-bold text-lg">${balance.expense.toLocaleString()}</p>
+                    <div id="prayersList" class="space-y-1"></div>
+                </div>
+
+                <!-- Productivity (New) -->
+                <div class="ramadan-card">
+                    <div class="flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+                        <i class="fa-solid fa-briefcase text-blue-400"></i>
+                        <span class="font-bold text-white">الإنتاجية</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">ساعات العمل</label>
+                            <input type="number" id="workHours" class="ramadan-input text-center font-bold text-lg" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">ساعات المذاكرة</label>
+                            <input type="number" id="studyHours" class="ramadan-input text-center font-bold text-lg" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Habits -->
+                <div class="ramadan-card">
+                    <div class="flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+                        <i class="fa-solid fa-star text-amber-400"></i>
+                        <span class="font-bold text-white">العبادات</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">قراءة القرآن (صفحة)</label>
+                            <input type="number" id="quranPages" class="ramadan-input text-center font-bold text-lg" placeholder="0">
+                        </div>
+                        <div id="taraweehCard" class="p-3 rounded-xl border border-white/10 flex items-center justify-between cursor-pointer transition-all" onclick="Ramadan.toggleHabit('taraweeh')">
+                            <div class="flex items-center gap-3 text-white"><i class="fa-solid fa-moon"></i> التراويح</div>
+                            <i class="fa-solid fa-check-circle text-white/20"></i>
+                        </div>
+                        <div id="azkarCard" class="p-3 rounded-xl border border-white/10 flex items-center justify-between cursor-pointer transition-all" onclick="Ramadan.toggleHabit('azkar')">
+                            <div class="flex items-center gap-3 text-white"><i class="fa-solid fa-hands-praying"></i> الأذكار</div>
+                            <i class="fa-solid fa-check-circle text-white/20"></i>
+                        </div>
+                        <div id="gymCard" class="p-3 rounded-xl border border-white/10 flex items-center justify-between cursor-pointer transition-all" onclick="Ramadan.toggleHabit('gym')">
+                            <div class="flex items-center gap-3 text-white"><i class="fa-solid fa-dumbbell"></i> رياضة</div>
+                            <i class="fa-solid fa-check-circle text-white/20"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress -->
+                <div class="ramadan-card text-center">
+                    <h4 class="font-kufi text-amber-400 text-xl mb-4">ختمة القرآن</h4>
+                    <div class="circle-progress-wrap">
+                        <svg class="circle-svg" viewBox="0 0 160 160">
+                            <circle class="circle-bg" cx="80" cy="80" r="70"></circle>
+                            <circle id="khatmaCircle" class="circle-val" cx="80" cy="80" r="70"></circle>
+                        </svg>
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+                            <h3 class="text-2xl font-bold text-white" id="khatmaPct">0%</h3>
+                            <span class="text-xs text-gray-400" id="khatmaLabel">الختمة 1</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div>
-                <h3 class="font-bold text-slate-800 text-lg mb-4 px-1">Recent Activity</h3>
-                <div class="space-y-3">
-                    ${txs.length === 0 ? '<div class="text-center py-8 text-slate-400 text-sm font-medium">No transactions yet</div>' : txs.map(t => `
-                        <div class="bg-white p-4 rounded-2xl shadow-soft flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg ${t.type === 'income' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-600'}">
-                                    <i class="fa-solid ${t.category.includes('Debt') ? 'fa-handshake' : t.type === 'income' ? 'fa-arrow-down' : 'fa-bag-shopping'}"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-slate-800 text-sm">${t.title}</h4>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase">${t.category}</p>
+
+            <!-- Save Button -->
+            <button onclick="Ramadan.saveDay()" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-amber-500/30 flex items-center gap-2 active:scale-95 transition-transform z-50">
+                <i class="fa-solid fa-floppy-disk"></i> حفظ اليوم
+            </button>
+        </div>
+    `,
+
+    dashboard: (data) => `
+        <div class="space-y-8">
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Dashboard</h2>
+                        <p class="text-sm text-slate-500">Overview: <span class="text-indigo-600 font-bold">${data.label}</span></p>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <div class="flex bg-white rounded-xl p-1 shadow-sm border border-slate-200">
+                            <button onclick="app.setFilterMode('daily')" class="px-3 py-1 text-xs font-bold rounded-lg transition-all ${app.filterMode === 'daily' ? 'filter-btn-active' : 'text-slate-500 hover:bg-slate-50'}">Day</button>
+                            <button onclick="app.setFilterMode('monthly')" class="px-3 py-1 text-xs font-bold rounded-lg transition-all ${app.filterMode === 'monthly' ? 'filter-btn-active' : 'text-slate-500 hover:bg-slate-50'}">Month</button>
+                            <button onclick="app.setFilterMode('yearly')" class="px-3 py-1 text-xs font-bold rounded-lg transition-all ${app.filterMode === 'yearly' ? 'filter-btn-active' : 'text-slate-500 hover:bg-slate-50'}">Year</button>
+                        </div>
+                        <div class="bg-white px-3 py-1 rounded-xl border border-slate-200 shadow-sm">
+                            ${app.filterMode === 'daily' ? `<input type="date" value="${app.filterValue}" onchange="app.setFilterValue(this.value)" class="text-xs font-bold bg-transparent outline-none text-slate-700 uppercase">` : ''}
+                            ${app.filterMode === 'monthly' ? `<input type="month" value="${app.filterValue}" onchange="app.setFilterValue(this.value)" class="text-xs font-bold bg-transparent outline-none text-slate-700 uppercase">` : ''}
+                            ${app.filterMode === 'yearly' ? `<input type="number" min="2000" max="2099" value="${app.filterValue}" onchange="app.setFilterValue(this.value)" class="text-xs font-bold bg-transparent outline-none text-slate-700 uppercase w-16">` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="glass-panel p-6 rounded-[2rem] relative overflow-hidden group">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Income</p>
+                    <h3 class="text-2xl font-bold text-slate-800">EGP ${data.income.toLocaleString()}</h3>
+                    <div class="w-full h-1 bg-emerald-100 mt-3 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: 100%"></div></div>
+                </div>
+                <div class="glass-panel p-6 rounded-[2rem] relative overflow-hidden group">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Expense</p>
+                    <h3 class="text-2xl font-bold text-slate-800">EGP ${data.expense.toLocaleString()}</h3>
+                    <div class="w-full h-1 bg-rose-100 mt-3 rounded-full overflow-hidden"><div class="h-full bg-rose-500" style="width: ${data.income > 0 ? Math.min(100, (data.expense/data.income)*100) : 0}%"></div></div>
+                </div>
+                <div class="bg-slate-900 text-white p-6 rounded-[2rem] shadow-xl shadow-slate-900/20 relative overflow-hidden md:col-span-2">
+                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-20"></div>
+                    <div class="relative z-10 flex justify-between items-center h-full">
+                        <div>
+                            <p class="text-indigo-300 text-xs font-bold uppercase tracking-widest mb-1">Net Balance</p>
+                            <h3 class="text-4xl font-extrabold">EGP ${data.net.toLocaleString()}</h3>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-2xl font-bold text-emerald-400">${data.savingsRate}%</span>
+                            <span class="text-[10px] text-slate-400 uppercase">Saved</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RAMADAN BANNER (NEW) -->
+            <button onclick="app.navigate('ramadan')" class="w-full bg-[#050a14] p-1 rounded-[1.5rem] shadow-lg relative overflow-hidden group hover:scale-[1.02] transition-transform">
+                <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-purple-600/20 opacity-50"></div>
+                <div class="bg-[#050a14] rounded-[1.3rem] p-4 flex items-center justify-between relative z-10 border border-amber-500/30">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-tr from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+                            <i class="fa-solid fa-moon text-xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="font-bold text-white text-lg leading-tight font-cairo">Ramadan Kareem</h3>
+                            <p class="text-[10px] text-amber-500 font-bold uppercase tracking-wider">Open Companion</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-white/50"></i>
+                </div>
+            </button>
+
+            <!-- Insights Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center text-xl"><i class="fa-solid fa-fire"></i></div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Top Category</p>
+                        <p class="text-sm font-bold text-slate-800">${data.topCat.name}</p>
+                        <p class="text-[10px] text-slate-400">EGP ${data.topCat.val.toLocaleString()}</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full ${data.expense > data.prevExpense ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'} flex items-center justify-center text-xl">
+                        <i class="fa-solid ${data.expense > data.prevExpense ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">vs Previous</p>
+                        <p class="text-sm font-bold ${data.expense > data.prevExpense ? 'text-rose-500' : 'text-emerald-500'}">
+                            ${Math.abs(data.expense - data.prevExpense).toLocaleString()} EGP
+                        </p>
+                        <p class="text-[10px] text-slate-400">${data.expense > data.prevExpense ? 'More spent' : 'Less spent'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                ${app.filterMode !== 'daily' ? `
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 lg:col-span-2">
+                    <h3 class="font-bold text-slate-800 mb-6 flex items-center gap-2"><i class="fa-solid fa-chart-area text-indigo-500"></i> Spending Trend</h3>
+                    <div class="h-64 w-full"><canvas id="chartTrend"></canvas></div>
+                </div>
+                ` : `
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 lg:col-span-2 flex flex-col items-center justify-center text-center">
+                    <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 text-2xl mb-3"><i class="fa-solid fa-calendar-xmark"></i></div>
+                    <h3 class="font-bold text-slate-400">Trend Chart Unavailable</h3>
+                    <p class="text-xs text-slate-400 mt-1">Switch to Month or Year view to see trends.</p>
+                </div>
+                `}
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 h-80">
+                     <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-orange-500"></i> Breakdown</h3>
+                     <div class="h-60 relative"><canvas id="chartCategories"></canvas></div>
+                </div>
+            </div>
+        </div>
+    `,
+
+    transactions: (data) => `
+        <div class="max-w-4xl mx-auto">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Transaction History</h2>
+                    <p class="text-sm text-slate-500">Records for <span class="text-indigo-600 font-bold">${data.label}</span></p>
+                </div>
+            </div>
+            <div class="space-y-3">
+                ${data.txs.length === 0 ? `
+                    <div class="flex flex-col items-center justify-center py-20 text-slate-300">
+                        <i class="fa-solid fa-file-invoice text-5xl mb-4"></i>
+                        <p>No transactions found for this period.</p>
+                    </div>
+                ` : data.txs.sort((a,b) => b.id - a.id).map(t => `
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-indigo-100 transition-colors">
+                        <div class="flex items-center gap-5">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${t.type === 'income' ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}">
+                                <i class="fa-solid ${t.category === 'Savings' ? 'fa-piggy-bank' : t.type === 'income' ? 'fa-arrow-down' : 'fa-cart-shopping'}"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800">${t.title}</h4>
+                                <div class="flex items-center gap-2 text-xs text-slate-400 mt-1">
+                                    <span class="bg-slate-100 px-2 py-0.5 rounded-md font-medium text-slate-500">${t.category}</span>
+                                    <span>•</span>
+                                    <span>${t.date}</span>
                                 </div>
                             </div>
-                            <span class="font-bold ${t.type === 'income' ? 'text-emerald-600' : 'text-slate-800'}">
+                        </div>
+                        <div class="text-right flex items-center gap-3">
+                            <div class="font-bold text-lg ${t.type === 'income' ? 'text-emerald-600' : 'text-slate-800'}">
                                 ${t.type === 'income' ? '+' : '-'} ${t.amount.toLocaleString()}
-                            </span>
+                            </div>
+                            <button onclick="Store.deleteTx(${t.id}); app.render()" class="w-8 h-8 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-100 transition-colors"><i class="fa-solid fa-trash text-xs"></i></button>
                         </div>
-                    `).join('')}
-                </div>
+                    </div>
+                `).join('')}
             </div>
-        </div>`;
-    },
+        </div>
+    `,
 
-    analytics: () => {
-        const data = app.getAnalyticsData();
+    goals: () => {
+        const goals = Store.get('goals');
         return `
-        <div class="space-y-6">
-            <div class="flex justify-between items-end">
-                <h2 class="text-2xl font-bold text-slate-800">Analytics</h2>
-                <div class="flex bg-white rounded-lg p-1 shadow-sm border border-slate-200">
-                    <button onclick="app.setFilterMode('monthly')" class="px-3 py-1 text-[10px] font-bold rounded-md ${app.filterMode === 'monthly' ? 'bg-slate-900 text-white' : 'text-slate-500'}">Month</button>
-                    <button onclick="app.setFilterMode('yearly')" class="px-3 py-1 text-[10px] font-bold rounded-md ${app.filterMode === 'yearly' ? 'bg-slate-900 text-white' : 'text-slate-500'}">Year</button>
+        <div class="space-y-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Savings Goals</h2>
+                    <p class="text-sm text-slate-500">Visualize your dreams</p>
                 </div>
+                <button onclick="modal.open('goal')" class="bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-bold shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-colors active:scale-95"><i class="fa-solid fa-plus mr-2"></i> New Goal</button>
             </div>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-emerald-500 text-white p-5 rounded-3xl shadow-lg shadow-emerald-500/20">
-                    <p class="text-emerald-100 text-xs font-bold uppercase mb-1">Income</p>
-                    <p class="text-2xl font-black">${data.income.toLocaleString()}</p>
-                </div>
-                <div class="bg-rose-500 text-white p-5 rounded-3xl shadow-lg shadow-rose-500/20">
-                    <p class="text-rose-100 text-xs font-bold uppercase mb-1">Expense</p>
-                    <p class="text-2xl font-black">${data.expense.toLocaleString()}</p>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-[2rem] shadow-soft border border-slate-100">
-                <h3 class="font-bold text-slate-800 mb-6 text-sm flex items-center gap-2"><i class="fa-solid fa-chart-pie text-blue-500"></i> Spending Breakdown</h3>
-                <div class="h-64 relative">
-                    <canvas id="chartCats"></canvas>
-                </div>
-            </div>
-        </div>`;
-    },
-
-    debts: () => {
-        const debts = Store.get('debts');
-        const iOwe = debts.filter(d => d.type === 'borrowed').reduce((a,b) => a + (b.totalAmount - b.paidAmount), 0);
-        const owedToMe = debts.filter(d => d.type === 'lent').reduce((a,b) => a + (b.totalAmount - b.paidAmount), 0);
-        return `
-        <div class="space-y-6">
-            <h2 class="text-2xl font-bold text-slate-800">Debt Manager</h2>
-            <div class="flex gap-4 overflow-x-auto no-scroll pb-2">
-                <div class="min-w-[160px] bg-white p-5 rounded-3xl shadow-soft border-l-4 border-rose-500">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">You Owe</p>
-                    <p class="text-xl font-black text-rose-600 mt-1">${iOwe.toLocaleString()}</p>
-                </div>
-                <div class="min-w-[160px] bg-white p-5 rounded-3xl shadow-soft border-l-4 border-emerald-500">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">Owed to You</p>
-                    <p class="text-xl font-black text-emerald-600 mt-1">${owedToMe.toLocaleString()}</p>
-                </div>
-            </div>
-            
-            <div class="space-y-4">
-                ${debts.length === 0 ? '<div class="text-center py-10 text-slate-400 text-sm">No active debts</div>' : debts.map(d => {
-                    const remaining = d.totalAmount - d.paidAmount;
-                    const pct = Math.round((d.paidAmount / d.totalAmount) * 100);
-                    return remaining > 0 ? `
-                    <div class="bg-white p-5 rounded-3xl shadow-soft relative">
-                        <div class="flex justify-between items-start mb-3">
-                            <div class="flex gap-3">
-                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm ${d.type === 'borrowed' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}">
-                                    <i class="fa-solid ${d.type === 'borrowed' ? 'fa-arrow-down' : 'fa-arrow-up'}"></i>
-                                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                ${goals.length === 0 ? `
+                    <div class="col-span-full py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-200 text-center">
+                        <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-400 text-3xl"><i class="fa-solid fa-rocket"></i></div>
+                        <h3 class="font-bold text-slate-700 text-lg">No active goals</h3>
+                        <p class="text-slate-400 text-sm mt-1 max-w-xs mx-auto">Create a goal to start tracking your progress towards something special.</p>
+                    </div>
+                ` : goals.map(g => {
+                    const pct = Math.min(100, Math.round((g.savedAmount / g.targetAmount) * 100));
+                    return `
+                    <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-6">
                                 <div>
-                                    <h3 class="font-bold text-slate-800 text-sm">${d.title}</h3>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase">${d.type === 'borrowed' ? 'Borrowed' : 'Lent'}</p>
+                                    <h3 class="font-bold text-xl text-slate-800">${g.title}</h3>
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">Target: ${g.targetAmount.toLocaleString()}</p>
                                 </div>
+                                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm shadow-sm">${pct}%</div>
                             </div>
-                            <div class="text-right">
-                                <p class="text-xs text-slate-400 font-bold">Remaining</p>
-                                <p class="font-black text-slate-800 text-lg">${remaining.toLocaleString()}</p>
+                            <div class="mb-2 flex items-baseline gap-1">
+                                <span class="text-3xl font-extrabold text-slate-800">${g.savedAmount.toLocaleString()}</span>
+                                <span class="text-xs font-bold text-slate-400">EGP</span>
+                            </div>
+                            <div class="w-full h-4 bg-slate-100 rounded-full mb-6 overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all duration-1000" style="width: ${pct}%"></div>
+                            </div>
+                            <div class="flex gap-3">
+                                <button onclick="modal.openAddMoney(${g.id})" class="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors active:scale-95 shadow-lg shadow-slate-900/10">Add Funds</button>
+                                <button onclick="Store.deleteGoal(${g.id}); app.render()" class="w-12 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-100 transition-colors"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="h-full rounded-full ${d.type === 'borrowed' ? 'bg-rose-500' : 'bg-emerald-500'}" style="width: ${pct}%"></div>
-                            </div>
-                            <span class="text-xs font-bold text-slate-400">${pct}%</span>
-                        </div>
-                        <div class="flex gap-3">
-                            <button onclick="modal.openPayDebt(${d.id}, '${d.type}')" class="flex-1 bg-slate-900 text-white text-xs font-bold py-3 rounded-xl active:scale-95 transition-transform">${d.type === 'borrowed' ? 'Pay Off' : 'Collect'}</button>
-                            <button onclick="Store.deleteDebt(${d.id}); app.navigate('debts')" class="w-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center hover:text-rose-500"><i class="fa-solid fa-trash text-xs"></i></button>
-                        </div>
-                    </div>` : '';
-                }).join('')}
+                    </div>
+                `}).join('')}
             </div>
-        </div>`;
-    },
+        </div>
+    `},
 
-    settings: () => `
-        <div class="space-y-6">
-            <h2 class="text-2xl font-bold text-slate-800">Settings</h2>
-            <div class="bg-white rounded-3xl p-6 shadow-soft text-center" onclick="document.getElementById('avatar-upload').click()">
-                <div class="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-slate-50 shadow-lg mb-4">
-                    <img id="settings-avatar" src="${Store.getUser().avatar}" class="w-full h-full object-cover">
+    analytics: (data) => `
+        <div class="space-y-8">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800">Advanced Analytics</h2>
+                <p class="text-sm text-slate-500">Analysis based on <span class="text-indigo-600 font-bold">${data.label}</span> data</p>
+            </div>
+            <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-indigo-600/30">
+                <div class="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div>
+                        <p class="text-indigo-200 font-bold uppercase tracking-widest text-xs mb-2">Financial Health Score</p>
+                        <h3 class="text-5xl font-extrabold mb-2">${data.healthScore}/100</h3>
+                        <p class="text-sm text-indigo-100 max-w-md opacity-80">
+                            ${data.healthScore > 80 ? 'Excellent! You are mastering your finances.' : data.healthScore > 50 ? 'Good job. Keep optimizing your savings.' : 'Needs attention. Try to reduce expenses.'}
+                        </p>
+                    </div>
+                    <div class="w-32 h-32 rounded-full border-8 border-white/20 flex items-center justify-center text-3xl font-bold relative">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                        <svg class="absolute inset-0 w-full h-full rotate-[-90deg]">
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="white" stroke-width="8" stroke-dasharray="339.292" stroke-dashoffset="${339.292 - (339.292 * data.healthScore) / 100}" stroke-linecap="round" />
+                        </svg>
+                    </div>
                 </div>
-                <h3 class="font-bold text-xl text-slate-800">${Store.getUser().name}</h3>
-                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Tap to change photo</p>
             </div>
-            <div class="bg-white rounded-3xl overflow-hidden shadow-soft">
-                <button onclick="Store.reset()" class="w-full p-5 flex items-center justify-between hover:bg-rose-50 transition-colors group">
-                    <span class="font-bold text-rose-500">Reset All Data</span>
-                    <i class="fa-solid fa-trash text-rose-300 group-hover:text-rose-500"></i>
-                </button>
-                <button onclick="localStorage.clear(); location.reload()" class="w-full p-5 flex items-center justify-between hover:bg-slate-50 transition-colors border-t border-slate-50">
-                    <span class="font-bold text-slate-700">Log Out</span>
-                    <i class="fa-solid fa-right-from-bracket text-slate-400"></i>
-                </button>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-800 mb-6">Income vs Expense Ratio</h3>
+                    <div class="h-64"><canvas id="chartBar"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-800 mb-6">Spending Distribution</h3>
+                    <div class="h-64 flex justify-center"><canvas id="chartCategories"></canvas></div>
+                </div>
             </div>
-        </div>`
+        </div>
+    `,
+
+    settings: () => {
+        const user = Store.getUser();
+        return `
+        <div class="max-w-xl mx-auto space-y-8">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800">System Settings</h2>
+                <p class="text-sm text-slate-500">Configure your workspace</p>
+            </div>
+            <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+                <div class="p-8 border-b border-slate-50 flex items-center gap-6">
+                    <div class="relative group cursor-pointer" onclick="document.getElementById('avatar-upload').click()">
+                        <img src="${user.avatar}" class="w-20 h-20 rounded-full border-4 border-slate-50 object-cover shadow-lg">
+                        <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-pen"></i></div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xl text-slate-800">${user.name}</h3>
+                        <p class="text-sm text-slate-400">Tap avatar to update photo</p>
+                    </div>
+                </div>
+                <div class="p-6 space-y-3">
+                    <button onclick="Store.export()" class="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-colors group border border-transparent hover:border-slate-200">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl"><i class="fa-solid fa-cloud-arrow-down"></i></div>
+                            <div class="text-left"><h4 class="font-bold text-slate-800">Backup Data</h4><p class="text-xs text-slate-400">Save JSON file locally</p></div>
+                        </div>
+                    </button>
+                    <button onclick="Store.reset()" class="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-rose-50 transition-colors group border border-transparent hover:border-rose-100">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="text-left"><h4 class="font-bold text-rose-600">Factory Reset</h4><p class="text-xs text-rose-400">Permanently delete all data</p></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            <div class="text-center"><p class="text-xs font-bold text-slate-300 uppercase tracking-widest">Smart Money Pro v6.5</p></div>
+        </div>
+    `}
 };
 
+// --- MODAL CONTROLLER ---
 const modal = {
-    overlay: document.getElementById('modal-overlay'), form: document.getElementById('dynamic-form'), title: document.getElementById('modal-title'),
+    overlay: document.getElementById('modal-overlay'),
+    content: document.getElementById('modal-content'),
+    form: document.getElementById('dynamic-form'),
+    title: document.getElementById('modal-title'),
+
     open: (type) => {
-        app.toggleActionSheet(); modal.overlay.classList.remove('hidden'); setTimeout(() => { modal.overlay.classList.remove('opacity-0'); document.getElementById('modal-content').classList.remove('scale-95'); }, 10);
-        const inputClass = "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all";
-        const labelClass = "block text-xs font-bold text-slate-400 uppercase mb-2 ml-1";
-        
+        document.getElementById('action-sheet').classList.add('hidden');
+        modal.overlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+        setTimeout(() => modal.content.classList.remove('scale-95'), 10);
+
+        const today = new Date().toISOString().split('T')[0];
+        const inputBase = "w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-4 outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all font-bold text-slate-700";
+        const labelBase = "text-xs font-bold text-slate-400 uppercase ml-1 block mb-2 tracking-wide";
+
         let html = '';
-        if (type === 'debt') {
-            modal.title.innerText = 'Add New Debt';
-            html = `<div><label class="${labelClass}">Type</label><div class="grid grid-cols-2 gap-3"><label class="cursor-pointer"><input type="radio" name="type" value="borrowed" class="peer sr-only" checked><div class="p-3 text-center rounded-xl border border-slate-200 peer-checked:bg-rose-500 peer-checked:text-white peer-checked:border-rose-500 transition-all font-bold text-sm">I Borrowed</div></label><label class="cursor-pointer"><input type="radio" name="type" value="lent" class="peer sr-only"><div class="p-3 text-center rounded-xl border border-slate-200 peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 transition-all font-bold text-sm">I Lent</div></label></div></div><div><label class="${labelClass}">Person Name / Title</label><input type="text" name="title" class="${inputClass}" required></div><div><label class="${labelClass}">Total Amount</label><input type="number" name="totalAmount" class="${inputClass}" required></div>`;
-        } else if (type === 'income' || type === 'expense') {
-            modal.title.innerText = `Add ${type}`;
-            html = `<div><label class="${labelClass}">Amount</label><input type="number" step="0.01" name="amount" class="${inputClass} text-2xl" required></div><div><label class="${labelClass}">Description</label><input type="text" name="title" class="${inputClass}" required></div><div><label class="${labelClass}">Category</label><select name="category" class="${inputClass}"><option>Food</option><option>Transport</option><option>Shopping</option><option>Bills</option><option>Salary</option><option>Other</option></select></div><input type="hidden" name="date" value="${new Date().toISOString().split('T')[0]}">`;
-        } else if (type === 'goal') {
-            modal.title.innerText = 'New Savings Goal';
-            html = `<div><label class="${labelClass}">Goal Name</label><input type="text" name="title" class="${inputClass}" required></div><div><label class="${labelClass}">Target Amount</label><input type="number" name="target" class="${inputClass}" required></div>`;
+        if(type === 'income' || type === 'expense') {
+            modal.title.innerHTML = type === 'income' ? '<div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-arrow-down"></i></div> New Income' : '<div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center"><i class="fa-solid fa-arrow-up"></i></div> New Expense';
+            html = `<div><label class="${labelBase}">Description</label><input type="text" name="title" class="${inputBase}" placeholder="e.g. Salary" required></div><div class="grid grid-cols-2 gap-5"><div><label class="${labelBase}">Amount</label><input type="number" step="0.01" name="amount" class="${inputBase}" placeholder="0.00" required></div><div><label class="${labelBase}">Date</label><input type="date" name="date" value="${today}" class="${inputBase}" required></div></div><div><label class="${labelBase}">Category</label><select name="category" class="${inputBase}"><option>Food</option><option>Transport</option><option>Shopping</option><option>Salary</option><option>Bills</option><option>Other</option></select></div>`;
+        } else if(type === 'goal') {
+            modal.title.innerHTML = '<div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center"><i class="fa-solid fa-bullseye"></i></div> New Goal';
+            html = `<div><label class="${labelBase}">Goal Name</label><input type="text" name="title" class="${inputBase}" placeholder="e.g. Dream Car" required></div><div class="grid grid-cols-2 gap-5"><div><label class="${labelBase}">Target Amount</label><input type="number" step="0.01" name="targetAmount" class="${inputBase}" placeholder="0.00" required></div><div><label class="${labelBase}">Initial Deposit</label><input type="number" step="0.01" name="savedAmount" value="0" class="${inputBase}"></div></div>`;
         }
         modal.form.innerHTML = html;
-        modal.form.onsubmit = (e) => { e.preventDefault(); const data = Object.fromEntries(new FormData(modal.form)); if(type==='debt') Store.addDebt(data); else if(type==='goal') Store.addGoal(data); else Store.addTx({...data, type}); modal.close(); app.navigate(type === 'debt' ? 'debts' : 'dashboard'); app.updateProfileUI(); };
+        modal.form.onsubmit = (e) => { e.preventDefault(); const data = Object.fromEntries(new FormData(modal.form)); if(type === 'goal') Store.addGoal(data); else Store.addTx({ ...data, type }); modal.close(); app.render(); };
     },
-    openPayDebt: (id, type) => {
-        modal.overlay.classList.remove('hidden'); setTimeout(() => { modal.overlay.classList.remove('opacity-0'); document.getElementById('modal-content').classList.remove('scale-95'); }, 10);
-        modal.title.innerText = type === 'borrowed' ? 'Pay Off Debt' : 'Collect Money';
-        modal.form.innerHTML = `<div class="py-4 text-center"><label class="block text-xs font-bold text-slate-400 uppercase mb-4">Amount</label><input type="number" step="0.01" name="amount" class="w-full bg-slate-50 border-b-2 border-slate-300 text-center text-4xl font-black text-slate-800 focus:outline-none focus:border-slate-900 pb-2 bg-transparent" placeholder="0" required autofocus></div>`;
-        modal.form.onsubmit = (e) => { e.preventDefault(); Store.payDebt(id, parseFloat(new FormData(modal.form).get('amount'))); modal.close(); app.navigate('debts'); app.updateProfileUI(); };
+    openAddMoney: (id) => {
+        document.getElementById('action-sheet').classList.add('hidden');
+        modal.overlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+        setTimeout(() => modal.content.classList.remove('scale-95'), 10);
+        modal.title.innerHTML = '<div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-plus"></i></div> Add Funds';
+        modal.form.innerHTML = `<div class="py-4 text-center"><label class="block text-xs font-bold text-slate-400 uppercase mb-3">Amount to Save</label><div class="relative max-w-xs mx-auto"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-400">EGP</span><input type="number" step="0.01" name="amount" class="w-full bg-slate-50 border-2 border-indigo-100 rounded-2xl py-4 pl-16 pr-4 text-3xl font-extrabold text-slate-800 focus:border-indigo-500 focus:bg-white transition-all outline-none text-center" placeholder="0.00" required autofocus></div></div>`;
+        modal.form.onsubmit = (e) => { e.preventDefault(); Store.fundGoal(id, parseFloat(new FormData(modal.form).get('amount'))); modal.close(); app.render(); };
     },
-    close: () => { modal.overlay.classList.add('opacity-0'); document.getElementById('modal-content').classList.add('scale-95'); setTimeout(() => modal.overlay.classList.add('hidden'), 200); }
+    close: () => { modal.content.classList.add('scale-95'); setTimeout(() => modal.overlay.classList.add('hidden', 'opacity-0', 'pointer-events-none'), 200); }
 };
 
 Auth.init();
